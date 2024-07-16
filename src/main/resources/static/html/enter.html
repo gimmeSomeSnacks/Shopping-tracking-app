@@ -1,42 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html lang="ru">
 <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-    <link href = "/static/css/enter.css" rel = "stylesheet">
-    <link href = "/static/css/general.css" rel = "stylesheet">
+    <link href = "/css/enter.css" rel = "stylesheet">
+    <link href = "/css/general.css" rel = "stylesheet">
 </head>
 <body>
-<header th:replace = "~{header :: header(account)}"></header>
+<header>
+    <nav class = "menu">
+        <a href="/catalog"><div class = "menuBox" id = "first"><p>Каталог</p></div></a>
+        <a href="/account"><div class = "menuBox"><p>Аккаунт</p></div></a>
+        <a href="#" id = "cartLink"><div class = "menuBox" id = "last"><p>Корзина</p></div></a>
+    </nav>
+</header>
 <main>
-    <form id="loginForm" class="logForm" th:action="@{/login}" th:object="${userReg}" th:method="POST">
+    <form id="signInForm" class="logForm">
         <h2>С Возвращением!</h2>
         <div class = "textInput">
-            <input type="text" id="loginUsername" placeholder="Логин" th:field="*{username}" required>
-            <input type="password" id="loginPassword" placeholder="Пароль" th:field="*{password}" required>
-            <button type="submit" class = "shineButton">Войти</button>
+            <input type="text" id="signInEmail" placeholder="Крч вводи уже" required>
+            <input type="password" id="signInPassword" placeholder="Пароль" required>
+            <button type="button" class = "shineButton" onclick="signIn()">Войти</button>
         </div>
-        <button id = "registerNow" class = "buttonSmaller" onclick="clearLogIn()">Нет аккаунта</button>
+        <button id = "signUp" class = "buttonSmaller" onclick="clearSignIn()">Нет аккаунта</button>
     </form>
 
 
-    <form id="regForm" class="logForm" style="display: none;" th:action="@{/reg}" th:object="${userReg}" th:method = "POST">
+    <form id="signUpForm" class="logForm" style="display: none;">
         <h2>Регистрация</h2>
         <div class = "textInput">
-            <input type="text" id="username" pattern = "^[а-яА-ЯёЁa-zA-Z]{3,}$" placeholder="Имя" th:field="*{name}" required>
-            <input type="text" id="userSirname" pattern = "^[а-яА-ЯёЁa-zA-Z]{3,}$"  placeholder="Фамилия" th:field="*{sirName}" required>
-            <input type="email" pattern = "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" id="email" placeholder="Почта" th:field="*{username}" required>
-            <input type="tel" pattern="\+?[\d]{5,40}" id="phoneNumber" placeholder="Номер телефона" th:field="*{phoneNumber}" required>
-            <input type="password" id="password" placeholder="Пароль" th:field="*{password}" oninput="showConfirmation()" required>
-            <input type="password" id="confirmation" style="display: none;" placeholder="Подтвердить пароль" required>
+            <input type="text" id="signUpName" placeholder="Имя" required>
+            <input type="text" id="signUpSirname"  placeholder="Фамилия" required>
+            <input type="email"  id="signUpEmail" placeholder="Почта" required>
+            <input type="tel" id="signUpPhoneNumber" placeholder="Номер телефона" required>
+            <input type="password" id="signUpPassword" placeholder="Пароль" oninput="showConfirmation()" required>
+            <input type="password" id="signUpConfirmation" style="display: none;" placeholder="Подтвердить пароль" required>
             <div id="error-message" style="display: none; color: red;">Пароли не совпадают</div>
-            <div class = "shineButton" onclick="conf()">Зарегестрироваться</div>
+            <div class = "shineButton" onclick="signUp()">Зарегестрироваться</div>
         </div>
-        <button id = "loginNow" class = "buttonSmaller" onclick="clearReg()">Уже есть аккаунт</button>
+        <button id = "signIn" class = "buttonSmaller" onclick="clearSignUp()">Уже есть аккаунт</button>
     </form>
 </main>
-<footer th:replace = "~{footer :: footer}"></footer>
-<script src="/static/js/sign.js"></script>
+<footer class="end">
+    <div class = "contacts">
+        <h2>Связаться с нами</h2>
+        <p>Понедельник - Пятница</p>
+        <p>09 : 00 - 18 : 00</p>
+        <p style="color: white;">Наш номер телефона:</p>
+        <a href="tel:89999999999">+7 (999) 999-99-99</a>
+        <p style="color: white;">Наша почта:</p>
+        <a href="mailto:example@gmail.com">example@gmail.com</a>
+        <p>Менеджер: </p>
+        <p>Туганов Н.А. ИКБО-20-22</p>
+    </div>
+</footer>
+<script src="/js/enter.js"></script>
 </body>
 </html>

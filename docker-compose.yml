@@ -1,0 +1,28 @@
+  services:
+    my-app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "privet"
+        POSTGRES_DB: "tracking-app"
+      ports:
+        - "8080:8080"
+      depends_on:
+        - database
+    database:
+      image: postgres:16
+      container_name: database
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "privet"
+        POSTGRES_DB: "tracking-app"
+      volumes:
+        - db-data:/var/lib/postgresql/data
+      restart: always
+
+  volumes:
+    db-data: {}

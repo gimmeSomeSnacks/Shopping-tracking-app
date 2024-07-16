@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -16,18 +17,19 @@ import java.util.*
 
 @Component
 class JwtProvider @Autowired constructor(
-    @Value("\${jwt.key}") private val jwtKey: String,
-    @Value("\${jwt.expire}") private val jwtExpire: Long,
     private val userService: UserService
     ) {
+    @Value("\${jwt.secret-key}") private val jwtKey: String = ""
+    private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
 
     fun isValid(token: String): Boolean {
         try {
             val userName = extractUserName(token)
+            logger.info(userName)
             val user = userService.loadUserByUsername(userName)
+            logger.info("user is : " + (user == null))
             return user != null
         } catch (e: Exception) {
-//            log.info(e.message)
             return false
         }
     }
@@ -57,12 +59,7 @@ class JwtProvider @Autowired constructor(
         return extractClaim(token) { it.expiration }
     }
 
-    fun reGenerateToken(token: String): String {
-        val user = userService.loadUserByUsername(extractUserName(token))
-        return generateToken(user, jwtExpire)
-    }
-
-    fun generateToken(user: User, expire: Long): String {
+    fun generateToken(user: User, expire: Int): String {
         val extraClaims: MutableMap<String, Any> = mutableMapOf(
             "id" to user.getId(),
             "username" to user.getUsername(),

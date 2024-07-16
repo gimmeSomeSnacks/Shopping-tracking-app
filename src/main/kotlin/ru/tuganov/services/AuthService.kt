@@ -1,56 +1,51 @@
 package ru.tuganov.services
 
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.tuganov.entities.User
 import ru.tuganov.entities.dto.SignIn
 import ru.tuganov.entities.dto.SignUp
+import ru.tuganov.security.CookieProvider
 import ru.tuganov.security.JwtProvider
 import ru.tuganov.security.Role
 
 @Service
 class AuthService @Autowired constructor(
+    @Value("\${jwt.access-expire}") private val accessExpire: Int,
+    @Value("\${jwt.refresh-expire}") private val refreshExpire: Int,
+    val cookieProvider: CookieProvider,
     val jwtProvider: JwtProvider,
-    val passwordEncoder: PasswordEncoder,
     val authenticationManager: AuthenticationManager,
     val userService: UserService,
-    @Value("\${jwt.expire}") val jwtExpire: Long
+    val passwordEncoder: PasswordEncoder
 ) {
-
-    fun signInUser(response: HttpServletResponse, signIn: SignIn): String {
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                signIn.getUsername(),
-                signIn.getPassword()
-            )
-        )
-
+    private val logger = LoggerFactory.getLogger(AuthService::class.java)
+    fun signInUser(response: HttpServletResponse, signIn: SignIn) {
         val user = userService.loadUserByUsername(signIn.getUsername())
-        return jwtProvider.generateToken(user, jwtExpire)
+        if (user != null) {
+            logger.info("in signInUser + ${signIn.getUsername()}")
+            val accessToken = jwtProvider.generateToken(user, accessExpire)
+            val refreshToken = jwtProvider.generateToken(user, refreshExpire)
+            cookieProvider.setTokenToCookies(response, "accessToken", accessToken, accessExpire)
+            cookieProvider.setTokenToCookies(response, "refreshToken", refreshToken, refreshExpire)
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    signIn.getUsername(),
+                    signIn.getPassword()
+                )
+            )
+        }
     }
 
     fun signUpUser(response: HttpServletResponse, signUp: SignUp) {
-        val role = Role.ROLE_USER
-        val newUser = User(signUp.getUserName(), signUp.getPassword(), signUp.getEmail(), role)
+        val role = Role.USER
+        val newUser = User(signUp.getUserName(), passwordEncoder.encode(signUp.getPassword()), signUp.getEmail(), role)
         userService.saveUser(newUser)
-    }
-
-    fun currentUser(): UserDetails? {
-        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        if (authentication != null && authentication.isAuthenticated) {
-            val principal = authentication.principal
-            if (principal is UserDetails) {
-                return principal
-            }
-        }
-        return null
     }
 }

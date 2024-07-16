@@ -10,6 +10,6 @@ import ru.tuganov.repositories.UserRepository
 class UserService @Autowired constructor(
     private val userRepository: UserRepository
 ): UserDetailsService {
-    override fun loadUserByUsername(username: String): User = userRepository.findByUsername(username)
+    override fun loadUserByUsername(username: String): User? = userRepository.findByUsername(username)
     fun saveUser(user: User): User = userRepository.save(user)
 }
