@@ -9,8 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.tuganov.entities.User
-import ru.tuganov.entities.dto.SignIn
-import ru.tuganov.entities.dto.SignUp
+import ru.tuganov.entities.dto.SignInDto
+import ru.tuganov.entities.dto.SignUpDto
 import ru.tuganov.security.CookieProvider
 import ru.tuganov.security.JwtProvider
 import ru.tuganov.security.Role
@@ -26,26 +26,26 @@ class AuthService @Autowired constructor(
     val passwordEncoder: PasswordEncoder
 ) {
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
-    fun signInUser(response: HttpServletResponse, signIn: SignIn) {
-        val user = userService.loadUserByUsername(signIn.getUsername())
+    fun signInUser(response: HttpServletResponse, signInDto: SignInDto) {
+        val user = userService.loadUserByUsername(signInDto.getUsername())
         if (user != null) {
-            logger.info("in signInUser + ${signIn.getUsername()}")
+            logger.info("in signInUser + ${signInDto.getUsername()}")
             val accessToken = jwtProvider.generateToken(user, accessExpire)
             val refreshToken = jwtProvider.generateToken(user, refreshExpire)
             cookieProvider.setTokenToCookies(response, "accessToken", accessToken, accessExpire)
             cookieProvider.setTokenToCookies(response, "refreshToken", refreshToken, refreshExpire)
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
-                    signIn.getUsername(),
-                    signIn.getPassword()
+                    signInDto.getUsername(),
+                    signInDto.getPassword()
                 )
             )
         }
     }
 
-    fun signUpUser(response: HttpServletResponse, signUp: SignUp) {
+    fun signUpUser(response: HttpServletResponse, signUpDto: SignUpDto) {
         val role = Role.USER
-        val newUser = User(signUp.getUserName(), passwordEncoder.encode(signUp.getPassword()), signUp.getEmail(), role)
+        val newUser = User(signUpDto.getUserName(), passwordEncoder.encode(signUpDto.getPassword()), signUpDto.getEmail(), role)
         userService.saveUser(newUser)
     }
 }

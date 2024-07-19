@@ -1,6 +1,6 @@
 package ru.tuganov.entities.dto
 
-class SignUp(
+class SignUpDto(
     private val username: String,
     private val password: String,
     private val email: String,

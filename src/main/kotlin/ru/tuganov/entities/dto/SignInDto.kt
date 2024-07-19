@@ -1,6 +1,6 @@
 package ru.tuganov.entities.dto
 
-class SignIn (
+class SignInDto (
     private val username: String,
     private val password: String
 ) {

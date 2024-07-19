@@ -18,8 +18,8 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private val id: Long = 0
-    @OneToMany
-    private val checkList: List<Check> = emptyList()
+    @OneToMany(fetch = FetchType.LAZY)
+    private val pageList: List<Page> = ArrayList()
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf(SimpleGrantedAuthority(role.name))
 

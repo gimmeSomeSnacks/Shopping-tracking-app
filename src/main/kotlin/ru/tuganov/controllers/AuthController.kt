@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import ru.tuganov.entities.dto.SignIn
-import ru.tuganov.entities.dto.SignUp
+import ru.tuganov.entities.dto.SignInDto
+import ru.tuganov.entities.dto.SignUpDto
 import ru.tuganov.services.AuthService
 
 @RestController
@@ -17,14 +17,14 @@ class AuthController @Autowired constructor(
 ) {
 
     @PostMapping("/sign-in")
-    fun signIn(response: HttpServletResponse, @RequestBody signIn: SignIn): ResponseEntity<String> {
-        authService.signInUser(response, signIn)
+    fun signIn(response: HttpServletResponse, @RequestBody signInDto: SignInDto): ResponseEntity<String> {
+        authService.signInUser(response, signInDto)
         return ResponseEntity("sign-in", HttpStatus.OK)
     }
 
     @PostMapping("/sign-up")
-    fun signUp(response: HttpServletResponse, @RequestBody signUp: SignUp): HttpStatus {
-        authService.signUpUser(response, signUp)
+    fun signUp(response: HttpServletResponse, @RequestBody signUpDto: SignUpDto): HttpStatus {
+        authService.signUpUser(response, signUpDto)
         return HttpStatus.OK
     }
 }

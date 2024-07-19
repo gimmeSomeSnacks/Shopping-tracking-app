@@ -6,9 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -67,19 +65,8 @@ class CustomFilter @Autowired constructor(
             context.authentication = authenticationToken
             SecurityContextHolder.setContext(context)
         }
-        val user = currentUser()
+        val user = userService.currentUser()
         logger.info("current user:" + user?.username + "; role: " + user?.authorities)
         filterChain.doFilter(request, response)
-    }
-
-    fun currentUser(): User? {
-        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        if (authentication != null && authentication.isAuthenticated) {
-            val principal = authentication.principal
-            if (principal is UserDetails) {
-                return principal as User
-            }
-        }
-        return null
     }
 }

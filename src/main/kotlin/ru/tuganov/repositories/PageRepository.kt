@@ -2,10 +2,11 @@ package ru.tuganov.repositories
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import ru.tuganov.entities.Check
 import ru.tuganov.entities.Page
-import java.util.*
+import ru.tuganov.entities.User
 
 @Repository
-interface CheckRepository: JpaRepository<Check, Long> {
+interface PageRepository: JpaRepository<Page, Long> {
+    fun findAllByUser(user: User): List<Page>
+    fun findPageById(pageId: Long): Page
 }

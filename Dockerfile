@@ -10,8 +10,8 @@ FROM openjdk:23
 
 WORKDIR /app
 
-COPY --from=build /project/build/libs/TrackingApp-0.0.1-SNAPSHOT.jar /app/TrackingApp.jar
+COPY --from=build /project/build/libs/ShoppingTrackingApp-0.0.1-SNAPSHOT.jar /app/ShoppingTrackingApp.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "TrackingApp.jar"]
+ENTRYPOINT ["java", "-jar", "ShoppingTrackingApp.jar"]

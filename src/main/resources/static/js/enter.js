@@ -51,11 +51,8 @@ async function signIn() {
         },
         body: JSON.stringify(userSignIn)
     });
-    if (response.ok) {
-        // alert(await response.text());
-    } else {
-        // alert("Error: " + response.status);
-    }
+
+    let json = response.json()
 }
 
 async function signUp() {

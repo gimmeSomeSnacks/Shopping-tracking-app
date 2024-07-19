@@ -22,16 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tagsContainer.addEventListener('input', function(event) {
         const input = event.target;
-        
-        // Проверяем, что изменение произошло в input, который не "Добавить тег"
+
         if (input !== addTagInput) {
             const newValue = input.value.trim();
-            input.defaultValue = newValue; // Обновляем defaultValue
+            input.defaultValue = newValue;
 
-            // Обновляем значение во всех select
             selects.forEach(select => {
                 Array.from(select.options).forEach(option => {
-                    if (('option' + input.id) == option.id) {
+                    if (('option' + input.id) === option.id) {
                         option.textContent = newValue;
                         option.value = newValue;
                     }
@@ -88,22 +86,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function deleteTag(event) {
-        // Получаем id для удаления из атрибута 'id' кнопки
         const deleteId = event.target.getAttribute('id').replace('delete-', '');
-        
-        // Находим input и его контейнер по id
+
         const tagInput = document.getElementById('input-' + deleteId);
         const tagContainer = tagInput.parentElement;
-    
-        // Удаляем опции из всех select
+
         document.querySelectorAll('select').forEach(select => {
             const option = document.getElementById('option' + tagInput.id);
             if (option) {
                 option.remove();
             }
         });
-    
-        // Удаляем контейнер тега
         tagContainer.remove();
     }
     
@@ -112,9 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', deleteTag);
     });
 
-    selects = document.querySelectorAll('select');
+    let selects = document.querySelectorAll('select');
 
-    // Функция для обновления всех select на странице
     function updateAllSelectOptions() {
         selects.forEach(select => {
             select.innerHTML = ''; // Очищаем текущие option
@@ -130,18 +122,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
-    // Вызываем функцию при загрузке страницы, чтобы заполнить все select изначальными значениями
     updateAllSelectOptions();
 
-    // Календарь
     const calendarDates = document.getElementById('calendarDates');
     const currentMonth = document.getElementById('currentMonth');
     const prevMonth = document.getElementById('prevMonth');
     const nextMonth = document.getElementById('nextMonth');
 
     let date = new Date();
-    let selectedDate = new Date(); // Устанавливаем текущую дату как выбранную по умолчанию
+    let selectedDate = new Date();
 
     function renderCalendar() {
         const year = date.getFullYear();
@@ -150,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const lastDate = new Date(year, month + 1, 0).getDate();
         const prevLastDate = new Date(year, month, 0).getDate();
 
-        // Преобразование для русской локали (начало с понедельника)
         const startDay = (firstDay + 6) % 7;
 
         calendarDates.innerHTML = '';
@@ -166,8 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 1; i <= lastDate; i++) {
             const dateElement = document.createElement('div');
             dateElement.textContent = i;
-            
-            // Проверяем, соответствует ли текущая дата выбранной дате
+
             if (selectedDate && selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
                 dateElement.setAttribute('id', 'selected');
             }
@@ -197,8 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const checksList = document.getElementById('checks');
 
-    // Функция для удаления элемента <li>
-    function handleDelete(event) {
+    function checkDelete(event) {
         const target = event.target;
         if (target && target.tagName === 'SPAN' && target.textContent === 'Удалить') {
             const li = target.closest('li'); // Находим ближайший <li> элемент
@@ -208,20 +194,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Функция для добавления нового элемента <li>
-    function handleAdd(event) {
+    function checkAdd(event) {
         const target = event.target;
         if (target && target.tagName === 'SPAN' && target.parentElement.id === 'add-article') {
-            // Получаем все <li> элементы в списке
             const lis = Array.from(checksList.querySelectorAll('li')).filter(li => li.id.startsWith('check-'));
 
-            // Находим последний идентификатор
             const lastId = lis.reduce((max, li) => {
                 const id = parseInt(li.id.replace('check-', ''), 10);
                 return id > max ? id : max;
             }, 0);
 
-            // Создаем новый элемент <li> с уникальными идентификаторами
             const newId = generateUniqueId();
             const newLi = document.createElement('li');
             newLi.id = 'check-' + newId;
@@ -242,33 +224,150 @@ document.addEventListener('DOMContentLoaded', function() {
 
             newLi.innerHTML = `
                 <input value="" id="check-text-${newId}">
-                <input value="" id="check-extense-${newId}">
+                <input value="" id="check-expense-${newId}">
             `;
             newLi.appendChild(newSelect);
 
-            // Добавляем кнопку удаления
             const newDeleteButton = document.createElement('span');
-            newDeleteButton.id = 'delete-' + newId;
+            newDeleteButton.id = 'delete-check-' + newId;
             newDeleteButton.classList.add('delete-btn');
             newDeleteButton.textContent = 'Удалить';
-            newDeleteButton.addEventListener('click', handleDelete);
+            newDeleteButton.addEventListener('click', checkDelete);
             newLi.appendChild(newDeleteButton);
 
-            // Вставляем новый <li> перед элементом "Добавить"
             const addArticleLi = checksList.querySelector('#add-article');
             if (addArticleLi) {
                 checksList.insertBefore(newLi, addArticleLi);
             }
-            selects = document.querySelectorAll('select');
+            // selects = document.querySelectorAll('select');
         }
     }
+    checksList.addEventListener('click', checkDelete);
 
-    // Добавляем обработчик для всех существующих кнопок "Удалить"
-    checksList.addEventListener('click', handleDelete);
-
-    // Добавляем обработчик для кнопки "Добавить"
     const addArticleSpan = checksList.querySelector('#add-article span');
     if (addArticleSpan) {
-        addArticleSpan.addEventListener('click', handleAdd);
+        addArticleSpan.addEventListener('click', checkAdd);
     }
+
+    function fillPage(pageJson) {
+        let pageId = document.getElementById("pageId");
+        pageId.textContent = pageJson.pageName;
+
+        let expectedExpenses = document.getElementById("expectedExpenses");
+        expectedExpenses.value = pageJson.expectedExpenses;
+
+        const tagsContainer = document.getElementById('tags');
+        tagsContainer.innerHTML = '';
+        pageJson.tagList.forEach((tag, index) => {
+            const div = document.createElement('div');
+            div.classList.add('tag-container');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = tag.name;
+            input.id = `input-${index + 1}`;
+
+            const deleteSpan = document.createElement('span');
+            deleteSpan.classList.add('delete-btn');
+            deleteSpan.id = `delete-${index + 1}`;
+            deleteSpan.textContent = 'Удалить';
+
+            div.appendChild(input);
+            div.appendChild(deleteSpan);
+            tagsContainer.appendChild(div);
+        });
+
+        const checksContainer = document.getElementById('checks');
+        checksContainer.innerHTML = '';
+
+        pageJson.checkList.forEach((check, index) => {
+            const li = document.createElement('li');
+            li.id = `check-${index + 1}`;
+
+            const inputDescription = document.createElement('input');
+            inputDescription.value = check.description;
+            inputDescription.id = `check-text-${index + 1}`;
+
+            const inputExpense = document.createElement('input');
+            inputExpense.value = check.expense;
+            inputExpense.id = `check-expense-${index + 1}`;
+
+            const selectTag = document.createElement('select');
+            selectTag.classList.add('check-tags');
+            selectTag.id = `check-tag-${index + 1}`;
+
+            // Заполняем select значениями тегов
+            page.tagList.forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag.id;
+                option.textContent = tag.name;
+                if (check.tag.id === tag.id) {
+                    option.selected = true;
+                }
+                selectTag.appendChild(option);
+            });
+
+            const deleteSpan = document.createElement('span');
+            deleteSpan.id = `delete-check-${index + 1}`;
+            deleteSpan.textContent = 'Удалить';
+
+            li.appendChild(inputDescription);
+            li.appendChild(inputExpense);
+            li.appendChild(selectTag);
+            li.appendChild(deleteSpan);
+
+            checksContainer.appendChild(li);
+        });
+    }
+    getChecks();
 });
+
+function getSelectedDate() {
+    const selectedElement = document.querySelector('.calendar-dates #selected');
+    const day = parseInt(selectedElement.textContent, 10);
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return new Date(year, month, day);
+}
+
+async function getChecks() {
+    let pageId = document.getElementById('pageId').value;
+    let date = getSelectedDate().toLocaleDateString('ru-RU');
+    let findCheck = {
+        pageId,
+        date
+    }
+
+    let response = await fetch("http://localhost:8080/checks/date", {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(findCheck)
+    });
+    if (!response.ok) {
+        alert("Error");
+        return;
+    }
+    return await response.json()
+}
+
+
+
+
+
+
+
+async function saveChanges() {
+    let response = await fetch("http://localhost:8080/checks/save-changes", {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+    }
+}
