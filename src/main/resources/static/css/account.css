@@ -1,0 +1,135 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    padding: 0;
+    flex-direction: column;
+}
+
+main {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#pageId {
+    text-align: center;
+    font-size: 2em;
+    margin: 20px 0;
+    margin-bottom: 100px;
+    width: 500px;
+}
+
+#statistics {
+    display: flex;
+    flex-direction: column;
+    max-width: 700px;
+    flex-wrap: wrap;
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 20px;
+    margin-left: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.calendar-header span {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.calendar-weekdays,
+.calendar-dates {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.calendar-weekdays div,
+.calendar-dates div {
+    width: 14.28%;
+    text-align: center;
+    padding: 5px 0;
+    margin: 1px 0;
+}
+
+.calendar-dates div {
+    cursor: pointer;
+}
+
+.calendar-dates #selected {
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+}
+
+#current-date {
+    opacity: 0.6;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+#diagram {
+    margin-left: 20px;
+    width: 100%;
+    height: 200px;
+    border: 1px dashed #ccc;
+    margin-top: 20px;
+}
+
+#tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+#tags input {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+#tags .tag-container {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+#tags .delete-btn {
+    margin-left: 5px;
+    cursor: pointer;
+    color: red;
+}
+
+#expenses {
+    margin-right: 20px;
+}
+
+#checks {
+    list-style-type: none;
+    padding: 0;
+}
+
+#checks li {
+    margin-bottom: 10px;
+}

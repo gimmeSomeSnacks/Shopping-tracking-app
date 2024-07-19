@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -20,14 +19,11 @@ class JwtProvider @Autowired constructor(
     private val userService: UserService
     ) {
     @Value("\${jwt.secret-key}") private val jwtKey: String = ""
-    private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
 
     fun isValid(token: String): Boolean {
         try {
             val userName = extractUserName(token)
-            logger.info(userName)
             val user = userService.loadUserByUsername(userName)
-            logger.info("user is : " + (user == null))
             return user != null
         } catch (e: Exception) {
             return false

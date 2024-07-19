@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class CookieProvider {
-    private val logger = LoggerFactory.getLogger(CookieProvider::class.java)
     fun getTokenFromCookies(request: HttpServletRequest, cookieName: String): String? {
         request.cookies?.let { cookies ->
             for (cookie in cookies) {
@@ -26,7 +25,6 @@ class CookieProvider {
         cookie.maxAge = expiration
         cookie.isHttpOnly = true
         cookie.secure = false
-        logger.info("set token $cookieName + $cookieValue + $expiration")
         response.addCookie(cookie)
     }
 
