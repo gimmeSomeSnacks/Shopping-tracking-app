@@ -19,11 +19,3 @@ jwt:
     secret-key: "myq32qcharacterqultraqsecureqandqultraqlongqsecret"
     access-expire: "900000"
     refresh-expire: "25200000"
-#    security:
-#      oauth2:
-#        client:
-#            registration:
-#              google:
-#                  client-id: "219687961906-maid8qanmgk7ttv7uiqip5lnt0378ah3.apps.googleusercontent.com"
-#                  client-secret: "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"
-#                  redirect-uri: "http://localhost:8080/login/oauth2/code/google"
