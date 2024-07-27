@@ -6,15 +6,15 @@ import jakarta.persistence.*
 @Table(name = "pages")
 data class Page (
     @ManyToOne(fetch = FetchType.LAZY)
-    private val user: User,
+    val user: User,
     @OneToMany(fetch = FetchType.LAZY)
-    private val checkList: List<Check>,
-    @OneToMany(fetch = FetchType.LAZY)
-    private val tagList: List<Tag>,
-    private val pageName: String,
-    private val expectedExpenses: Int
-) {
+    val checkList: MutableList<Check>,
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    val tagList: List<Tag>,
+    var pageName: String,
+    var expectedExpenses: Int,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long = 0
+    val id: Int?=null
+) {
 }

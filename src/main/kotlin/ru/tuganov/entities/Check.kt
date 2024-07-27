@@ -6,15 +6,15 @@ import java.time.LocalDate
 @Entity
 @Table(name = "checks")
 data class Check (
+    @ManyToOne
+    val page: Page,
+    var description: String,
+    var expense: Int,
+    @OneToOne
+    var tag: Tag,
+    val date: LocalDate,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long,
-    @ManyToOne
-    private val page: Page,
-    private val description: String,
-    private val expense: Int,
-    @OneToOne
-    private val tag: Tag,
-    private val date: LocalDate
+    val id: Int?=null
 ) {
 }

@@ -29,6 +29,7 @@ class SecurityConfiguration @Autowired constructor(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
+                authorize("/html/page-list.html/**", hasAuthority("USER"))
                 authorize("/html/page.html/**", hasAuthority("USER"))
                 authorize("/html/admin.html/**", hasAnyAuthority("ADMIN", "MODER"))
                 authorize("/**", permitAll)

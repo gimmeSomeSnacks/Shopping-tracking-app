@@ -56,8 +56,8 @@ class JwtProvider @Autowired constructor(
     }
 
     fun generateToken(user: User, expire: Int): String {
-        val extraClaims: MutableMap<String, Any> = mutableMapOf(
-            "id" to user.getId(),
+        val extraClaims: MutableMap<String, Any?> = mutableMapOf(
+            "id" to user.id,
             "username" to user.getUsername(),
             "authorities" to user.getAuthorities())
         val currentTime: Long = System.currentTimeMillis()

@@ -7,8 +7,9 @@ import jakarta.persistence.Id
 
 @Entity
 data class Tag (
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Int,
-    private val name: String
+    val name: String,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Int?=null
 ) {
 }

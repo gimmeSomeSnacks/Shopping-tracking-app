@@ -5,8 +5,8 @@ spring:
 #      resources:
 #        static-locations: classpath:/html/
     datasource:
-#      url: jdbc:postgresql://localhost:5432/postgres
-      url: jdbc:postgresql://database:5432/shopping-tracking-app
+      url: jdbc:postgresql://localhost:5432/postgres
+#      url: jdbc:postgresql://database:5432/shopping-tracking-app
       username: postgres
       password: privet
       driver-class-name: org.postgresql.Driver

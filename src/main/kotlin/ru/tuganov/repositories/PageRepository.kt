@@ -6,7 +6,7 @@ import ru.tuganov.entities.Page
 import ru.tuganov.entities.User
 
 @Repository
-interface PageRepository: JpaRepository<Page, Long> {
+interface PageRepository: JpaRepository<Page, Int> {
     fun findAllByUser(user: User): List<Page>
-    fun findPageById(pageId: Long): Page
+    fun findPageById(pageId: Int): Page
 }

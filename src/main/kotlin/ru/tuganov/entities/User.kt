@@ -9,23 +9,21 @@ import ru.tuganov.security.Role
 @Entity
 @Table(name = "users")
 data class User(
-    private val username: String,
-    private val password: String,
-    private val email: String,
+    private var username: String,
+    private var password: String,
+    var email: String,
     @Enumerated(EnumType.STRING)
-    private val role: Role,
-): UserDetails {
+    val role: Role,
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    val pageList: List<Page> = mutableListOf(),
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long = 0
-    @OneToMany(fetch = FetchType.LAZY)
-    private val pageList: List<Page> = ArrayList()
-
+    @Column(nullable = false, unique = true)
+    val id: Long? = 0
+): UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf(SimpleGrantedAuthority(role.name))
 
     override fun getPassword(): String = password
 
     override fun getUsername(): String = username
-
-    fun getId(): Long = id
 }

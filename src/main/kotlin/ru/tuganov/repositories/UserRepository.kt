@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository
 import ru.tuganov.entities.User
 
 @Repository
-interface UserRepository: JpaRepository<User, Long> {
+interface UserRepository: JpaRepository<User, Int> {
     fun findByUsername(username: String): User?
 }

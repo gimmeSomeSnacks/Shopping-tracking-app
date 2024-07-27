@@ -5,35 +5,35 @@ function generateUniqueId() {
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    const calendarDates = document.getElementById('calendarDates');
-    const currentMonth = document.getElementById('currentMonth');
-    const prevMonth = document.getElementById('prevMonth');
-    const nextMonth = document.getElementById('nextMonth');
+    let calendarDates = document.getElementById('calendarDates');
+    let currentMonth = document.getElementById('currentMonth');
+    let prevMonth = document.getElementById('prevMonth');
+    let nextMonth = document.getElementById('nextMonth');
 
     let date = new Date();
     let selectedDate = new Date();
 
     function renderCalendar() {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
-        const prevLastDate = new Date(year, month, 0).getDate();
+        let year = date.getFullYear();
+        let month = date.getMonth();
+        let firstDay = new Date(year, month, 1).getDay();
+        let lastDate = new Date(year, month + 1, 0).getDate();
+        let prevLastDate = new Date(year, month, 0).getDate();
 
-        const startDay = (firstDay + 6) % 7;
+        let startDay = (firstDay + 6) % 7;
 
         calendarDates.innerHTML = '';
         currentMonth.textContent = date.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
 
         for (let i = startDay; i > 0; i--) {
-            const prevDateElement = document.createElement('div');
+            let prevDateElement = document.createElement('div');
             prevDateElement.classList.add('prev-date');
             prevDateElement.textContent = prevLastDate - i + 1;
             calendarDates.appendChild(prevDateElement);
         }
 
         for (let i = 1; i <= lastDate; i++) {
-            const dateElement = document.createElement('div');
+            let dateElement = document.createElement('div');
             dateElement.textContent = i;
 
             if (selectedDate && selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             dateElement.addEventListener('click', function() {
-                const previousSelected = document.querySelector('.calendar-dates #selected');
+                let previousSelected = document.querySelector('.calendar-dates #selected');
                 if (previousSelected) {
                     previousSelected.removeAttribute('id');
                 }
@@ -63,30 +63,46 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     renderCalendar();
-    
-    // Функция для создания и добавления элемента тега
-    function createTagElement(tagObject) {
-        const tagContainer = document.createElement('div');
+
+    async function createTagElement(tagObject) {
+        let tagContainer = document.createElement('div');
         tagContainer.classList.add('tag-container');
 
-        const tagInput = document.createElement('input');
+        let tagInput = document.createElement('input');
         tagInput.type = 'text';
         tagInput.value = tagObject.name; // Используем свойство name из объекта Tag
         tagInput.setAttribute('id', tagObject.id);
 
-        const deleteButton = document.createElement('span');
+        let deleteButton = document.createElement('span');
         deleteButton.classList.add('delete-btn');
         deleteButton.textContent = 'Удалить';
 
-        deleteButton.addEventListener('click', function() {
+        deleteButton.addEventListener('click', async function() {
             tagContainer.remove(); // Удаление родительского контейнера (тега)
             updateCheckTagOptions();
+
+            await fetch(`/check/delete/${tagObject.id}`, {
+                method: 'POST',
+                credentials: 'include'
+            });
         });
-        tagInput.addEventListener('blur', function() {
+        tagInput.addEventListener('blur', async function() {
             if (!this.value.trim()) {
                 tagContainer.remove();
             }
             updateCheckTagOptions();
+            let tag = {
+                id: tagObject.id,
+                name: this.value.trim()
+            }
+            await fetch(`/check/edit`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(tag)
+            });
         });
 
         tagContainer.appendChild(tagInput);
@@ -95,30 +111,28 @@ document.addEventListener('DOMContentLoaded', function() {
         return tagContainer;
     }
 
-    // Функция для создания и добавления элемента проверки
-    function createCheckElement(check) {
-        const checkItem = document.createElement('li');
-        checkItem.id = `check-${check.id}`; // Используем id из объекта Check
+    async function createCheckElement(check) {
+        let checkItem = document.createElement('li');
+        checkItem.id = `check-${check.id}`;
 
-        const checkDescriptionInput = document.createElement('input');
+        let checkDescriptionInput = document.createElement('input');
         checkDescriptionInput.type = 'text';
-        checkDescriptionInput.value = check.description; // Используем свойство description из объекта Check
+        checkDescriptionInput.value = check.description;
 
-        const checkExpenseInput = document.createElement('input');
+        let checkExpenseInput = document.createElement('input');
         checkExpenseInput.type = 'text';
-        checkExpenseInput.value = check.expense; // Используем свойство expense из объекта Check
+        checkExpenseInput.value = check.expense;
 
-        const checkTagSelect = document.createElement('select');
-        
-        // Получаем все теги из контейнера
-        const tagInputs = document.querySelectorAll('#tags .tag-container input');
+        let checkTagSelect = document.createElement('select');
+
+        let tagInputs = document.querySelectorAll('#tags .tag-container input');
         tagInputs.forEach(tagInput => {
             if (tagInput.value != '') {
-                const option = document.createElement('option');
-                option.value = tagInput.value; // Используем значение input в качестве id
-                option.textContent = tagInput.value; // Используем значение input в качестве текста
+                let option = document.createElement('option');
+                option.value = tagInput.value;
+                option.textContent = tagInput.value;
                 if (tagInput.value === check.tag) {
-                    option.selected = true; // Устанавливаем выбранный тег
+                    option.selected = true;
                 }
                 checkTagSelect.appendChild(option);
             }
@@ -128,23 +142,48 @@ document.addEventListener('DOMContentLoaded', function() {
         checkItem.appendChild(checkExpenseInput);
         checkItem.appendChild(checkTagSelect);
         
-        const deleteButton = document.createElement('span');
+        let deleteButton = document.createElement('span');
         deleteButton.classList.add('delete-btn');
         deleteButton.textContent = 'Удалить';
-        deleteButton.addEventListener('click', function() {
+        deleteButton.addEventListener('click', async function() {
             checkItem.remove();
+
+            await fetch(`/check/delete/${check.id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
         });
 
-        // Реализация удаления пока не нужна
+        let saveButton = document.createElement('span');
+        saveButton.classList.add('save-btn');
+        saveButton.textContent = 'Сохранить';
+        saveButton.addEventListener('click', async function() {
+            let saveCheck = {
+                id: check.id,
+                description: checkDescriptionInput.value,
+                expense: checkExpenseInput.value,
+                tag: checkTagSelect.value
+            };
+
+            // Отправка запроса на сохранение чека
+            await fetch(`/check/save`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(saveCheck)
+            });
+        });
+
         checkItem.appendChild(deleteButton);
+        checkItem.appendChild(saveButton);
 
         return checkItem;
     }
 
-    // Функция для заполнения данных страницы из sessionStorage
     function populatePage() {
-        // Получение данных из sessionStorage
-        const pageData = JSON.parse(sessionStorage.getItem('pageData'));
+        let pageData = JSON.parse(sessionStorage.getItem('pageData'));
 
         if (pageData) {
             // Заполнение имени страницы
@@ -152,20 +191,20 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('expectedExpenses').value = pageData.expectedExpenses;
 
             // Заполнение списка тегов
-            const tagsContainer = document.getElementById('tags');
+            let tagsContainer = document.getElementById('tags');
             pageData.tagList.forEach(tag => {
                 tagObject = {
                     id: tag.id,
                     name: tag.name
                 }
-                const tagElement = createTagElement(tagObject);
+                let tagElement = createTagElement(tagObject);
                 tagsContainer.insertBefore(tagElement, document.getElementById('addTag'));
             });
 
             // Заполнение списка проверок
-            const checksContainer = document.getElementById('checks');
+            let checksContainer = document.getElementById('checks');
             pageData.checkList.forEach(check => {
-                const checkElement = createCheckElement(check);
+                let checkElement = createCheckElement(check);
                 checksContainer.insertBefore(checkElement, document.getElementById('add-article'));
             });
         }
@@ -173,35 +212,39 @@ document.addEventListener('DOMContentLoaded', function() {
     populatePage();
 
 
-    function handleAddTag() {
-        const addTagInput = document.querySelector('#addTag input');
-        
-        // Функция для обработки потери фокуса или нажатия Enter
-        function finalizeTag() {
-            const tagName = addTagInput.value.trim();
+    async function handleAddTag() {
+        let addTagInput = document.querySelector('#addTag input');
+
+        async function finalizeTag() {
+            let tagName = addTagInput.value.trim();
             if (tagName) {
-                const tagId = generateUniqueId();
-                newTag = {
+                let tagId = generateUniqueId();
+                let newTag = {
                     id: tagId,
                     name: tagName
                 }
-                const newTagElement = createTagElement(newTag);
-                
-                // Вставляем новый тег перед элементом "Добавить тег"
-                const tagsContainer = document.getElementById('tags');
+                let newTagElement = createTagElement(newTag);
+
+                let tagsContainer = document.getElementById('tags');
                 tagsContainer.insertBefore(newTagElement, addTagInput.parentElement);
-    
-                // Очистка input и восстановление его в начальное состояние
+
                 addTagInput.value = '';
-                addTagInput.blur(); // Сброс фокуса
+                addTagInput.blur();
                 updateCheckTagOptions();
+
+                await fetch('/add-tag', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newTag)
+                });
             }
         }
     
-        // Обработка потери фокуса
         addTagInput.addEventListener('blur', finalizeTag);
-    
-        // Обработка нажатия Enter
+
         addTagInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 finalizeTag();
@@ -212,45 +255,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function handleAddCheck() {
-        const addArticleElement = document.getElementById('add-article');
+        let addArticleElement = document.getElementById('add-article');
         
         addArticleElement.addEventListener('click', function() {
-            const tagsContainer = document.getElementById('tags');
-            const tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container'))
+            let tagsContainer = document.getElementById('tags');
+            let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container'))
                 .map(tagContainer => {
-                    const input = tagContainer.querySelector('input');
+                    let input = tagContainer.querySelector('input');
                     return { id: input.id, name: input.value };
                 });
-            check = {
+            let check = {
                 id: generateUniqueId(),
                 description: '',
                 tag:  '',
                 expense: ''
             }
-            const newCheckElement = createCheckElement(check);
-        
-            const checksContainer = document.getElementById('checks');
+
+            let newCheckElement = createCheckElement(check);
+            let checksContainer = document.getElementById('checks');
             checksContainer.insertBefore(newCheckElement, addArticleElement);
         });
     }
     handleAddCheck();
 
     function updateCheckTagOptions() {
-        const tagsContainer = document.getElementById('tags');
-        const tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container input'))
+        let tagsContainer = document.getElementById('tags');
+        let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container input'))
             .filter(input => input.value.trim() !== '')
             .map(input => ({ id: input.id, name: input.value }));
 
 
-        const checkElements = document.querySelectorAll('#checks li');
+        let checkElements = document.querySelectorAll('#checks li');
         checkElements.forEach(checkElement => {
-            const select = checkElement.querySelector('select');
+            let select = checkElement.querySelector('select');
             if (select) {
-                const currentValue = select.value;
+                let currentValue = select.value;
                 select.innerHTML = '';
 
                 tagOptions.forEach(tag => {
-                    const option = document.createElement('option');
+                    let option = document.createElement('option');
                     option.value = tag.id;
                     option.textContent = tag.name;
                     select.appendChild(option);

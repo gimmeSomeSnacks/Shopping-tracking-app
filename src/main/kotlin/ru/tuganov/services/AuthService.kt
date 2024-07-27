@@ -27,17 +27,17 @@ class AuthService @Autowired constructor(
 ) {
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
     fun signInUser(response: HttpServletResponse, signInDto: SignInDto) {
-        val user = userService.loadUserByUsername(signInDto.getUsername())
+        val user = userService.loadUserByUsername(signInDto.username)
         if (user != null) {
-            logger.info("in signInUser + ${signInDto.getUsername()}")
+            logger.info("in signInUser + ${signInDto.username}")
             val accessToken = jwtProvider.generateToken(user, accessExpire)
             val refreshToken = jwtProvider.generateToken(user, refreshExpire)
             cookieProvider.setTokenToCookies(response, "accessToken", accessToken, accessExpire)
             cookieProvider.setTokenToCookies(response, "refreshToken", refreshToken, refreshExpire)
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
-                    signInDto.getUsername(),
-                    signInDto.getPassword()
+                    signInDto.username,
+                    signInDto.password
                 )
             )
         }
@@ -45,7 +45,7 @@ class AuthService @Autowired constructor(
 
     fun signUpUser(response: HttpServletResponse, signUpDto: SignUpDto) {
         val role = Role.USER
-        val newUser = User(signUpDto.getUserName(), passwordEncoder.encode(signUpDto.getPassword()), signUpDto.getEmail(), role)
+        val newUser = User(signUpDto.username, passwordEncoder.encode(signUpDto.password), signUpDto.email, role)
         userService.saveUser(newUser)
     }
 }
