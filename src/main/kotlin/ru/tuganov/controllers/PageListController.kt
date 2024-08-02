@@ -5,18 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import ru.tuganov.entities.Check
 import ru.tuganov.entities.Page
-import ru.tuganov.entities.dto.FindCheckDto
 import ru.tuganov.entities.dto.PageDto
-import ru.tuganov.services.CheckService
 import ru.tuganov.services.PageService
-
 @RestController
 @RequestMapping("/pages")
 class PageListController @Autowired constructor(
-    private val pageService: PageService,
-    private val checkService: CheckService
+    private val pageService: PageService
 ) {
     private val logger = LoggerFactory.getLogger(PageListController::class.java)
     @GetMapping("")
@@ -45,8 +40,8 @@ class PageListController @Autowired constructor(
         return ResponseEntity("deleted", HttpStatus.OK)
     }
 
-    @PostMapping("/checks")
-    fun getChecks(@RequestBody findCheckDto: FindCheckDto): ResponseEntity<List<Check>> {
-        return ResponseEntity(checkService.findChecks(findCheckDto), HttpStatus.OK)
+    @GetMapping("/{id}")
+    fun getPage(@PathVariable id: Int): ResponseEntity<Page> {
+        return ResponseEntity(pageService.findPageById(id), HttpStatus.OK)
     }
 }

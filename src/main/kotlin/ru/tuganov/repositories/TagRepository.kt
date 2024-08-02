@@ -1,4 +1,8 @@
 package ru.tuganov.repositories
 
-interface TagRepository {
+import org.springframework.data.jpa.repository.JpaRepository
+import ru.tuganov.entities.Tag
+
+interface TagRepository: JpaRepository<Tag, Int> {
+    fun findTagById(id: Int): Tag?
 }

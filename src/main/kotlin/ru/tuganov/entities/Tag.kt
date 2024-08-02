@@ -1,13 +1,17 @@
 package ru.tuganov.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 
 @Entity
 data class Tag (
-    val name: String,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    val page: Page,
+    var name: String,
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY,)
+    @JsonIgnore
+    var checkList: MutableList<Check>,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int?=null

@@ -1,17 +1,11 @@
-function generateUniqueId() {
-    return Math.random().toString(36).substr(2, 9);
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-
+document.addEventListener('DOMContentLoaded', async function() {
     let calendarDates = document.getElementById('calendarDates');
     let currentMonth = document.getElementById('currentMonth');
     let prevMonth = document.getElementById('prevMonth');
     let nextMonth = document.getElementById('nextMonth');
 
-    let date = new Date();
-    let selectedDate = new Date();
+    let date = new Date((JSON.parse(atob(location.hash.substring(1)))).date);
+    let selectedDate = new Date((JSON.parse(atob(location.hash.substring(1)))).date);
 
     function renderCalendar() {
         let year = date.getFullYear();
@@ -39,19 +33,31 @@ document.addEventListener('DOMContentLoaded', function() {
             if (selectedDate && selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
                 dateElement.setAttribute('id', 'selected');
             }
-            
-            dateElement.addEventListener('click', function() {
+
+            dateElement.addEventListener('click', async function() {
                 let previousSelected = document.querySelector('.calendar-dates #selected');
                 if (previousSelected) {
                     previousSelected.removeAttribute('id');
                 }
                 dateElement.setAttribute('id', 'selected');
-                selectedDate = new Date(year, month, i);
+                selectedDate = new Date(year, month, i + 1);
+                tag.date = selectedDate.toISOString().split('T')[0];
+
+                let checks = document.getElementById('checks');
+                checks.innerHTML = '<li id = "add-article"><span>Добавить что-то</span></li>';
+                document.getElementById('add-article').addEventListener('click', handleAddCheck);
+
+                let tags = document.getElementById('tags');
+                tags.innerHTML = '<div class="tag-container" id="addTag"><span>Добавить тег</span></div>'
+                document.getElementById('addTag').addEventListener('click', finalizeTag);
+
+                window.location.href = `/html/page.html#${btoa(JSON.stringify(tag))}`;
+                await populatePage();
             });
             calendarDates.appendChild(dateElement);
         }
     }
-    
+
     prevMonth.addEventListener('click', function() {
         date.setMonth(date.getMonth() - 1);
         renderCalendar();
@@ -62,74 +68,181 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCalendar();
     });
 
-    renderCalendar();
 
-    async function createTagElement(tagObject) {
+    let tag;
+    let pageJson;
+    async function  populatePage() {
+        // let pageData = JSON.parse(sessionStorage.getItem('pageData'));
+        let jsonData = atob(location.hash.substring(1));
+        tag = JSON.parse(jsonData);
+        if (!tag) {
+            alert('Error');
+        }
+        let pageResponse = await  fetch(`/pages/${tag.pageId}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (!pageResponse.ok) {
+            alert('Error');
+        }
+        pageJson = await pageResponse.json();
+        if (pageJson) {
+            let page = document.getElementById('pageId');
+            page.value = pageJson.pageName;
+            let expectedExpenses = document.getElementById('expectedExpenses');
+            expectedExpenses.value = pageJson.expectedExpenses;
+            expectedExpenses.addEventListener('input', async function() {
+                let value = expectedExpenses.value;
+                let response = await fetch('/page/expected-expenses', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: value
+                });
+                if (!response.ok) {
+                    alert('Error');
+                }
+            })
+
+            let tagsContainer = document.getElementById('tags');
+            pageJson.tagList.forEach(tag => {
+                let tagObject = {
+                    id: tag.id,
+                    name: tag.name
+                }
+                let tagElement = createTagElement(tagObject);
+                tagsContainer.insertBefore(tagElement, document.getElementById('addTag'));
+            });
+        }
+
+        let checksResponse = await fetch('/page/selected-date', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        });
+        if (!checksResponse.ok) {
+            alert('Error');
+        }
+        let checksJson = await checksResponse.json();
+        if (checksJson) {
+            let checksContainer = document.getElementById('checks');
+            checksJson.forEach(check => {
+                let checkElement = finalizeCheckCreation(check);
+                checksContainer.insertBefore(checkElement, document.getElementById('add-article'));
+            });
+        }
+    }
+
+    function createTagElement(tagObject) {
         let tagContainer = document.createElement('div');
         tagContainer.classList.add('tag-container');
 
         let tagInput = document.createElement('input');
         tagInput.type = 'text';
-        tagInput.value = tagObject.name; // Используем свойство name из объекта Tag
+        tagInput.value = tagObject.name;
         tagInput.setAttribute('id', tagObject.id);
-
-        let deleteButton = document.createElement('span');
-        deleteButton.classList.add('delete-btn');
-        deleteButton.textContent = 'Удалить';
-
-        deleteButton.addEventListener('click', async function() {
-            tagContainer.remove(); // Удаление родительского контейнера (тега)
-            updateCheckTagOptions();
-
-            await fetch(`/check/delete/${tagObject.id}`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-        });
-        tagInput.addEventListener('blur', async function() {
-            if (!this.value.trim()) {
-                tagContainer.remove();
+        tagInput.addEventListener('input', async function () {
+            let tagObject = {
+                id: tagInput.id,
+                name: tagInput.value
             }
-            updateCheckTagOptions();
-            let tag = {
-                id: tagObject.id,
-                name: this.value.trim()
-            }
-            await fetch(`/check/edit`, {
+            let response = await fetch (`/page/edit-tag`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(tag)
+                body: JSON.stringify(tagObject)
             });
+            if (!response.ok) {
+                alert('Error');
+            }
+            updateCheckTagOptions();
+        });
+
+        let deleteButton = document.createElement('span');
+        deleteButton.classList.add('delete-btn');
+        deleteButton.textContent = 'Удалить';
+
+        deleteButton.addEventListener('click', deleteTag);
+
+        async function deleteTag() {
+            tagContainer.remove();
+            updateCheckTagOptions();
+
+            let response = await fetch(`/page/delete-tag/${tagObject.id}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                alert('Error');
+            }
+        }
+
+        tagInput.addEventListener('blur', async function() {
+            if (!this.value.trim()) {
+                await deleteTag();
+                updateCheckTagOptions();
+            }
         });
 
         tagContainer.appendChild(tagInput);
         tagContainer.appendChild(deleteButton);
-
         return tagContainer;
     }
 
-    async function createCheckElement(check) {
+    async function sendEditCheck(checkId) {
+        let checkDescription = document.getElementById(`check-description-${checkId}`);
+        let checkExpense = document.getElementById(`check-expense-${checkId}`);
+        let checkSelectOptions = document.querySelector(`#check-tag-select-${checkId}`);
+        let checkTagSelect = checkSelectOptions.options[checkSelectOptions.selectedIndex];
+        let check = {
+            checkId: checkId,
+            description: checkDescription.value,
+            expense: checkExpense.value,
+            tagId: checkTagSelect.id
+        }
+        let response = await fetch('/page/update-check', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(check)
+        });
+        if (!response) {
+            alert('Error');
+        }
+    }
+
+    function finalizeCheckCreation(check) {
         let checkItem = document.createElement('li');
+
         checkItem.id = `check-${check.id}`;
 
         let checkDescriptionInput = document.createElement('input');
         checkDescriptionInput.type = 'text';
         checkDescriptionInput.value = check.description;
+        checkDescriptionInput.id = `check-description-${check.id}`
 
         let checkExpenseInput = document.createElement('input');
         checkExpenseInput.type = 'text';
         checkExpenseInput.value = check.expense;
+        checkExpenseInput.id = `check-expense-${check.id}`
 
         let checkTagSelect = document.createElement('select');
+        checkTagSelect.id = `check-tag-select-${check.id}`;
 
         let tagInputs = document.querySelectorAll('#tags .tag-container input');
         tagInputs.forEach(tagInput => {
             if (tagInput.value != '') {
                 let option = document.createElement('option');
-                option.value = tagInput.value;
+                option.id = tagInput.id;
                 option.textContent = tagInput.value;
                 if (tagInput.value === check.tag) {
                     option.selected = true;
@@ -137,146 +250,97 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkTagSelect.appendChild(option);
             }
         });
-
+        if (check.tag != null)
+            checkTagSelect.value = check.tag.name;
         checkItem.appendChild(checkDescriptionInput);
         checkItem.appendChild(checkExpenseInput);
         checkItem.appendChild(checkTagSelect);
-        
+
+        checkDescriptionInput.addEventListener('input', async function() {
+            await sendEditCheck(check.id);
+        });
+        checkTagSelect.addEventListener('change', async function() {
+            await sendEditCheck(check.id);
+        });
+        checkExpenseInput.addEventListener('input', async function() {
+            await sendEditCheck(check.id);
+        });
+
         let deleteButton = document.createElement('span');
         deleteButton.classList.add('delete-btn');
         deleteButton.textContent = 'Удалить';
         deleteButton.addEventListener('click', async function() {
             checkItem.remove();
 
-            await fetch(`/check/delete/${check.id}`, {
+            await fetch(`/check/delete-check/${check.id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
         });
 
-        let saveButton = document.createElement('span');
-        saveButton.classList.add('save-btn');
-        saveButton.textContent = 'Сохранить';
-        saveButton.addEventListener('click', async function() {
-            let saveCheck = {
-                id: check.id,
-                description: checkDescriptionInput.value,
-                expense: checkExpenseInput.value,
-                tag: checkTagSelect.value
-            };
-
-            // Отправка запроса на сохранение чека
-            await fetch(`/check/save`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(saveCheck)
-            });
-        });
-
         checkItem.appendChild(deleteButton);
-        checkItem.appendChild(saveButton);
-
         return checkItem;
     }
 
-    function populatePage() {
-        let pageData = JSON.parse(sessionStorage.getItem('pageData'));
-
-        if (pageData) {
-            // Заполнение имени страницы
-            document.getElementById('pageId').value = pageData.pageName;
-            document.getElementById('expectedExpenses').value = pageData.expectedExpenses;
-
-            // Заполнение списка тегов
-            let tagsContainer = document.getElementById('tags');
-            pageData.tagList.forEach(tag => {
-                tagObject = {
-                    id: tag.id,
-                    name: tag.name
-                }
-                let tagElement = createTagElement(tagObject);
-                tagsContainer.insertBefore(tagElement, document.getElementById('addTag'));
-            });
-
-            // Заполнение списка проверок
-            let checksContainer = document.getElementById('checks');
-            pageData.checkList.forEach(check => {
-                let checkElement = createCheckElement(check);
-                checksContainer.insertBefore(checkElement, document.getElementById('add-article'));
-            });
-        }
-    }
-    populatePage();
-
-
-    async function handleAddTag() {
-        let addTagInput = document.querySelector('#addTag input');
-
-        async function finalizeTag() {
-            let tagName = addTagInput.value.trim();
-            if (tagName) {
-                let tagId = generateUniqueId();
-                let newTag = {
-                    id: tagId,
-                    name: tagName
-                }
-                let newTagElement = createTagElement(newTag);
-
-                let tagsContainer = document.getElementById('tags');
-                tagsContainer.insertBefore(newTagElement, addTagInput.parentElement);
-
-                addTagInput.value = '';
-                addTagInput.blur();
-                updateCheckTagOptions();
-
-                await fetch('/add-tag', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(newTag)
-                });
-            }
-        }
-    
-        addTagInput.addEventListener('blur', finalizeTag);
-
-        addTagInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                finalizeTag();
-            }
+    async function finalizeTag() {
+        let addTagInput = document.querySelector('#addTag span');
+        let response = await fetch(`/page/add-tag/${pageJson.id}`, {
+            method: 'GET',
+            credentials: 'include',
         });
+        if (!response.ok) {
+            alert('Error');
+        }
+        let tagJson = await response.json();
+        let newTag = {
+            id: tagJson,
+            name: ""
+        }
+        let newTagElement = await createTagElement(newTag);
+
+        let tagsContainer = document.getElementById('tags');
+        tagsContainer.insertBefore(newTagElement, addTagInput.parentElement);
+        document.getElementById(tagJson).focus();
+        addTagInput.value = '';
+        addTagInput.blur();
+        updateCheckTagOptions();
     }
-    handleAddTag();
+    document.querySelector('#addTag').addEventListener('click', finalizeTag);
 
-
-    function handleAddCheck() {
+    async function handleAddCheck() {
         let addArticleElement = document.getElementById('add-article');
-        
-        addArticleElement.addEventListener('click', function() {
-            let tagsContainer = document.getElementById('tags');
-            let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container'))
-                .map(tagContainer => {
-                    let input = tagContainer.querySelector('input');
-                    return { id: input.id, name: input.value };
-                });
-            let check = {
-                id: generateUniqueId(),
-                description: '',
-                tag:  '',
-                expense: ''
-            }
-
-            let newCheckElement = createCheckElement(check);
-            let checksContainer = document.getElementById('checks');
-            checksContainer.insertBefore(newCheckElement, addArticleElement);
+        // let tagsContainer = document.getElementById('tags');
+        // let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container'))
+        //     .map(tagContainer => {
+        //         let input = tagContainer.querySelector('input');
+        //         if (input) {
+        //             return { id: input.id, name: input.value };
+        //         }
+        //     });
+        let newCheck = {
+            pageId: pageJson.id,
+            date: selectedDate,
+            tagId: ""
+        }
+        let response = await fetch(`/page/add-check`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newCheck)
         });
+        if (!response.ok) {
+            alert('Error');
+        }
+        newCheck.id = await response.json();
+        let newCheckElement = finalizeCheckCreation(newCheck);
+        let checksContainer = document.getElementById('checks');
+        await checksContainer.insertBefore(await newCheckElement, addArticleElement);
+
+
     }
-    handleAddCheck();
+    document.getElementById('add-article').addEventListener('click', handleAddCheck);
 
     function updateCheckTagOptions() {
         let tagsContainer = document.getElementById('tags');
@@ -294,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 tagOptions.forEach(tag => {
                     let option = document.createElement('option');
-                    option.value = tag.id;
+                    option.id = tag.id;
                     option.textContent = tag.name;
                     select.appendChild(option);
                 });
@@ -303,4 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    renderCalendar();
+    await populatePage();
 });

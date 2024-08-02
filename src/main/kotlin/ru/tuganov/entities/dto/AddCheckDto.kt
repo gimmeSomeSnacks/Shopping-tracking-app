@@ -2,8 +2,9 @@ package ru.tuganov.entities.dto
 
 import java.time.LocalDate
 
-class FindChecksDto (
+class AddCheckDto (
     val pageId: Int,
-    val date: LocalDate
+    val date: LocalDate,
+    val tagId: Int
 ){
 }

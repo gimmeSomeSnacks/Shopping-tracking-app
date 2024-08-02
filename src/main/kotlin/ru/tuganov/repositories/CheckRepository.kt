@@ -10,4 +10,5 @@ import java.util.*
 @Repository
 interface CheckRepository: JpaRepository<Check, Int> {
     fun findAllByDateAndPage(date: LocalDate, page: Page): List<Check>
+    fun findCheckById(id: Int): Check
 }

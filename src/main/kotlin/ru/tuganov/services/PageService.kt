@@ -12,6 +12,14 @@ class PageService @Autowired constructor(
     private val userService: UserService
 ){
 
+    fun findPageById(id: Int): Page {
+        return pageRepository.findPageById(id)
+    }
+
+    fun save(page: Page) {
+        pageRepository.save(page)
+    }
+
     fun findPages(): List<Page> {
         val currentUser = userService.currentUser()
         if (currentUser != null) {

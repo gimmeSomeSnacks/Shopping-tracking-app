@@ -32,7 +32,7 @@ document.getElementById('addPageButton').addEventListener('click', async functio
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify('')
+        body: JSON.stringify("")
     });
     if (!response.ok) {
         alert('Error');
@@ -43,6 +43,7 @@ document.getElementById('addPageButton').addEventListener('click', async functio
     input.setAttribute('id', pageId);
 
     listItem.appendChild(input);
+    listItem.setAttribute('id', pageId);
     listContainer.appendChild(listItem);
 
     input.focus();
@@ -82,6 +83,7 @@ async function finalizePageCreation(input, listItem) {
         link.textContent = pageName;
 
         listItem.innerHTML = '';
+        listItem.setAttribute('id', input.id);
         listItem.appendChild(link);
 
         let editButton = document.createElement('button');
@@ -145,13 +147,12 @@ async function enableEditing(listItem, oldInput) {
 }
 
 async function deletePage(listItem) {
-    let link = listItem.querySelector('a');
-    let id = link.id; 
-
-    await fetch(`/pages/delete/${id}`, {
-        method: 'GET',
-        credentials: 'include'
-    });
+    if (listItem.id != '') {
+        await fetch(`/pages/delete/${listItem.id}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+    }
     listItem.remove();
 }
 
@@ -164,22 +165,9 @@ async function getPage(event) {
         pageId: pageId,
         date: date
     };
-    
-    let response = await fetch(`/pages/checks`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application.json'
-        },
-        body: JSON.stringify(findCheckDto)
-    });
-    if (!response.ok){
-        alert('Error');
-        return;
-    }
-    let pageData = await response.json();
 
-    sessionStorage.setItem('pageData', JSON.stringify(pageData));
+    // sessionStorage.setItem('pageData', JSON.stringify(pageData));
 
-    window.location.href = '/html/page.html';
+    let tag = btoa(JSON.stringify(findCheckDto));
+    window.location.href = `/html/page.html#${tag}`;
 }

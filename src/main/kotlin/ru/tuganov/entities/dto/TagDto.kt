@@ -1,4 +1,7 @@
 package ru.tuganov.entities.dto
 
-class TagDto {
+class TagDto (
+    val id : Int,
+    val name : String
+){
 }

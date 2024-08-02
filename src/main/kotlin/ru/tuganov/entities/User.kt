@@ -14,7 +14,7 @@ data class User(
     var email: String,
     @Enumerated(EnumType.STRING)
     val role: Role,
-    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     val pageList: List<Page> = mutableListOf(),
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
