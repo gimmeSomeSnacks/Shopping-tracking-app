@@ -36,6 +36,7 @@ class PageController @Autowired constructor(
 
     @GetMapping("/delete-check/{checkId}")
     fun deleteCheck(@PathVariable checkId: Int): ResponseEntity<String> {
+//        logger.info("delete-check");
         checkService.deleteCheck(checkId)
         return ResponseEntity("deleted check", HttpStatus.OK)
     }

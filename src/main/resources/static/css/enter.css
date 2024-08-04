@@ -6,15 +6,17 @@ main{
 }
 
 .logForm{
+    color: rgb(128, 128, 128);
     border-radius: 20px;
-    backdrop-filter: opacity(80%);
+    /*backdrop-filter: opacity(80%);*/
     width: 25%;
     max-height: 700px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: #EF8888;
+    background: #FFFDE5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logForm h2{
@@ -30,7 +32,7 @@ main{
     border-radius: 20px;
     margin: 10px;
     padding: 5px;
-    background: #EFB19C;
+    background: #FFF1E5;
     border: rgb(128, 128, 128);
     height: 30px;
     width: 340px;
@@ -38,16 +40,16 @@ main{
 
 .shineButton {
     text-align: center;
-    background: white;
+    background: #FFF1E5;
     padding: 10px 30px;
     position: relative;
     left: 50%;
     transform: translate(-50%);
     overflow: hidden;
-    border: 2px solid #F02C6E;
+    border: 2px solid rgb(128, 128, 128);
     border-radius: 8px;
     font-size: 25px;
-    color: #F02C6E;
+    color: rgb(128, 128, 128);
     transition: .2s ease-in-out;
 }
 
@@ -63,8 +65,8 @@ main{
 }
 
 .shineButton:hover {
-    background: #F07B91;
-    color: #fff;
+    background: #FFFDE5;
+    color: #91baff;
 }
 
 .shineButton:hover:before {
@@ -72,18 +74,18 @@ main{
     transition: .5s ease-in-out;
 }
 
-
 .buttonSmaller {
     width: 200px;
     margin-top: 10px;
     padding: 10px 20px;
-    background-color: #F07B91;
-    color: #fff;
-    border: 2px solid #F02C6E;
+    background-color: #FFF1E5;
+    color: rgb(128, 128, 128);
+    border: 2px solid rgb(128, 128, 128);
     border-radius: 5px;
     cursor: pointer;
     transition: transform 0.3s ease;
 }
+
 .buttonSmaller:hover {
     transform: scale(1.1);
 }

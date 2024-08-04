@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Название страницы</title>
-    <link rel="stylesheet" href="/css/account.css">
+    <link href = "/css/general.css" rel = "stylesheet">
+    <link href = "/css/page.css" rel = "stylesheet">
 </head>
 <body>
-    <input value = "Название страницы" id = "pageId">
     <main>
-        <aside id = "menu"></aside>
+        <input id = "pageId">
         <div id = "statistics">
             <div class="calendar-container">
                 <div class="calendar-header">
@@ -32,17 +32,19 @@
             <div id = "diagram"></div>
             <div id = "tags">
                 <div class="tag-container" id="addTag">
-                    <span>Добавить тег</span>
+                    <button class = "medium-button">Добавить категорию</button>
                 </div>
             </div>
         </div>
         <div id = "expenses">
-            <div>
-                <input value = "Потрачено">
-                <input value = "Ожидаемые траты" id = "expectedExpenses">
+            <div id = "expenses-sum">
+                <label>Общая сумма трат</label>
+                <label>Ожидаемая сумма трат</label>
+                <input placeholder = "Общая сумма трат">
+                <input placeholder = "Ожидаемая сумма трат" id = "expectedExpenses">
             </div>
             <ul id = "checks">
-                <li id = "add-article"><span>Добавить что-то</span></li>
+                <li id = "add-article"><button class = "medium-button">Добавить покупку</button></li>
             </ul>
         </div>
     </main>

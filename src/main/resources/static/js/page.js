@@ -44,14 +44,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 tag.date = selectedDate.toISOString().split('T')[0];
 
                 let checks = document.getElementById('checks');
-                checks.innerHTML = '<li id = "add-article"><span>Добавить что-то</span></li>';
+                checks.innerHTML = '<li id="add-article"><button class = "medium-button">Добавить покупку</button></li>';
                 document.getElementById('add-article').addEventListener('click', handleAddCheck);
 
                 let tags = document.getElementById('tags');
-                tags.innerHTML = '<div class="tag-container" id="addTag"><span>Добавить тег</span></div>'
+                tags.innerHTML = '<div class="tag-container" id="addTag"><button class = "medium-button">Добавить категорию</button></div>'
                 document.getElementById('addTag').addEventListener('click', finalizeTag);
 
-                window.location.href = `/html/page.html#${btoa(JSON.stringify(tag))}`;
+                window.location.href = `/page.html#${btoa(JSON.stringify(tag))}`;
                 await populatePage();
             });
             calendarDates.appendChild(dateElement);
@@ -76,14 +76,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         let jsonData = atob(location.hash.substring(1));
         tag = JSON.parse(jsonData);
         if (!tag) {
-            alert('Error');
+            alert(response.status);
         }
         let pageResponse = await  fetch(`/pages/${tag.pageId}`, {
             method: 'GET',
             credentials: 'include'
         });
         if (!pageResponse.ok) {
-            alert('Error');
+            alert(response.status);
         }
         pageJson = await pageResponse.json();
         if (pageJson) {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     body: value
                 });
                 if (!response.ok) {
-                    alert('Error');
+                    alert(response.status);
                 }
             })
 
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             body: jsonData
         });
         if (!checksResponse.ok) {
-            alert('Error');
+            alert(response.status);
         }
         let checksJson = await checksResponse.json();
         if (checksJson) {
@@ -160,15 +160,15 @@ document.addEventListener('DOMContentLoaded', async function() {
                 body: JSON.stringify(tagObject)
             });
             if (!response.ok) {
-                alert('Error');
+                alert(response.status);
             }
             updateCheckTagOptions();
         });
 
-        let deleteButton = document.createElement('span');
-        deleteButton.classList.add('delete-btn');
-        deleteButton.textContent = 'Удалить';
-
+        let deleteButton = document.createElement('button');
+        deleteButton.className = 'button delete';
+        deleteButton.textContent = String.fromCharCode(10007);
++
         deleteButton.addEventListener('click', deleteTag);
 
         async function deleteTag() {
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 credentials: 'include'
             });
             if (!response.ok) {
-                alert('Error');
+                alert(response.status);
             }
         }
 
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             checkId: checkId,
             description: checkDescription.value,
             expense: checkExpense.value,
-            tagId: checkTagSelect.id
+            tagId: checkTagSelect.id.substring('option-tag-'.length)
         }
         let response = await fetch('/page/update-check', {
             method: 'POST',
@@ -216,23 +216,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             body: JSON.stringify(check)
         });
         if (!response) {
-            alert('Error');
+            alert(response.status);
         }
     }
 
     function finalizeCheckCreation(check) {
         let checkItem = document.createElement('li');
+        checkItem.className = "singleCheck";
 
         checkItem.id = `check-${check.id}`;
 
         let checkDescriptionInput = document.createElement('input');
         checkDescriptionInput.type = 'text';
-        checkDescriptionInput.value = check.description;
+        checkDescriptionInput.value = check.description ?? '';
         checkDescriptionInput.id = `check-description-${check.id}`
 
         let checkExpenseInput = document.createElement('input');
         checkExpenseInput.type = 'text';
-        checkExpenseInput.value = check.expense;
+        checkExpenseInput.value = check.expense ?? '';
         checkExpenseInput.id = `check-expense-${check.id}`
 
         let checkTagSelect = document.createElement('select');
@@ -242,9 +243,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         tagInputs.forEach(tagInput => {
             if (tagInput.value != '') {
                 let option = document.createElement('option');
-                option.id = tagInput.id;
+                option.id = 'option-tag-' + tagInput.id;
                 option.textContent = tagInput.value;
-                if (tagInput.value === check.tag) {
+                if (tagInput.value == check.tag) {
                     option.selected = true;
                 }
                 checkTagSelect.appendChild(option);
@@ -266,14 +267,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             await sendEditCheck(check.id);
         });
 
-        let deleteButton = document.createElement('span');
+        let deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-btn');
-        deleteButton.textContent = 'Удалить';
+        deleteButton.textContent = String.fromCharCode(10007);
+        deleteButton.className = 'button delete';
         deleteButton.addEventListener('click', async function() {
             checkItem.remove();
 
-            await fetch(`/check/delete-check/${check.id}`, {
-                method: 'DELETE',
+            await fetch(`/page/delete-check/${check.id}`, {
+                method: 'GET',
                 credentials: 'include'
             });
         });
@@ -283,13 +285,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     async function finalizeTag() {
-        let addTagInput = document.querySelector('#addTag span');
+        let addTagInput = document.querySelector('.medium-button');
         let response = await fetch(`/page/add-tag/${pageJson.id}`, {
             method: 'GET',
             credentials: 'include',
         });
         if (!response.ok) {
-            alert('Error');
+            alert(response.status);
         }
         let tagJson = await response.json();
         let newTag = {
@@ -331,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             body: JSON.stringify(newCheck)
         });
         if (!response.ok) {
-            alert('Error');
+            alert(response.status);
         }
         newCheck.id = await response.json();
         let newCheckElement = finalizeCheckCreation(newCheck);

@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded', async function getAllPages() {
         method: 'GET'
     });
     if (!response.ok) {
-        alert('Error');
+        alert(response.status);
         return;
     }
     let pages = await response.json();
@@ -35,7 +35,7 @@ document.getElementById('addPageButton').addEventListener('click', async functio
         body: JSON.stringify("")
     });
     if (!response.ok) {
-        alert('Error');
+        alert(response.status);
         return;
     }
 
@@ -43,7 +43,6 @@ document.getElementById('addPageButton').addEventListener('click', async functio
     input.setAttribute('id', pageId);
 
     listItem.appendChild(input);
-    listItem.setAttribute('id', pageId);
     listContainer.appendChild(listItem);
 
     input.focus();
@@ -66,7 +65,7 @@ document.getElementById('addPageButton').addEventListener('click', async functio
             body: JSON.stringify(page)
         });
         if (!response.ok) {
-            alert('Error');
+            alert(response.status);
         }
     });
 });
@@ -78,27 +77,32 @@ async function finalizePageCreation(input, listItem) {
 
         let link = document.createElement('a');
         link.setAttribute('id', input.id);
-        link.setAttribute('onclick', 'getPage(event)');
+        link.setAttribute('onclick', `getPage(event)`);
         link.href = '#';
         link.textContent = pageName;
 
         listItem.innerHTML = '';
-        listItem.setAttribute('id', input.id);
         listItem.appendChild(link);
 
         let editButton = document.createElement('button');
-        editButton.textContent = 'Редактировать';
+        editButton.textContent = String.fromCharCode(9998);
+        editButton.className = 'button update';
         editButton.addEventListener('click', async function() {
             await enableEditing(listItem, input);
         });
         listItem.appendChild(editButton);
 
         let deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Удалить';
+        deleteButton.textContent = String.fromCharCode(10007);
+        deleteButton.className = 'button delete';
         deleteButton.addEventListener('click', async function() {
             await deletePage(listItem);
         });
         listItem.appendChild(deleteButton);
+
+        let underline = document.createElement('div');
+        underline.className = 'underline';
+        listItem.appendChild(underline);
         listContainer.appendChild(listItem);
     } else {
         await deletePage(listItem);
@@ -132,7 +136,7 @@ async function enableEditing(listItem, oldInput) {
             body: JSON.stringify(page)
         });
         if (!response.ok) {
-            alert('Error');
+            alert(response.status);
         }
     });
 
@@ -169,5 +173,5 @@ async function getPage(event) {
     // sessionStorage.setItem('pageData', JSON.stringify(pageData));
 
     let tag = btoa(JSON.stringify(findCheckDto));
-    window.location.href = `/html/page.html#${tag}`;
+    window.location.href = `/page.html#${tag}`;
 }

@@ -1,0 +1,79 @@
+main {
+    border-radius: 10px;
+    background: #FFFDE5;
+    margin-top: 200px;
+    max-width: 700px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#pageList {
+    list-style-type: none;
+    padding: 30px 30px 15px;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+li {
+    display: grid;
+    height: 50px;
+    grid-template-columns: 500px 60px 60px;
+    justify-items: center;
+    align-items: center;
+    font-size: 25px;
+    margin-bottom: 10px;
+    border-bottom: rgb(128, 128, 128);
+}
+
+button {
+    width: 10px;
+    padding: 10px 28px 10px 15px;
+    background-color: #FFF1E5;
+    color: rgb(128, 128, 128);
+    border: 2px solid rgb(128, 128, 128);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete:hover {
+    color: red;
+    border-color: red;
+}
+
+.update:hover {
+    color: #91baff;
+    border-color: #91baff;
+}
+
+#addPageButton{
+    width: 200px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #FFF1E5;
+    color: rgb(128, 128, 128);
+    border: 2px solid rgb(128, 128, 128);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    position: relative;
+    left: 27%;
+}
+
+#addPageButton:hover {
+    transform: scale(1.1);
+}
+
+.underline {
+    margin-top: 10px;
+    width: 100%;
+    border-bottom: 3px solid rgb(128, 128, 128);
+}

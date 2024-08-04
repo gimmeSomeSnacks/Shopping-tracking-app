@@ -14,7 +14,7 @@
         <div class = "textInput">
             <input type="text" id="signInEmail" placeholder="Крч вводи уже" required>
             <input type="password" id="signInPassword" placeholder="Пароль" required>
-            <button type="button" class = "shineButton" onclick="signIn()">Войти</button>
+            <button type="button" class = "shineButton" onclick="sendSignIn()">Войти</button>
         </div>
         <button id = "signUp" class = "buttonSmaller" onclick="clearSignIn()">Нет аккаунта</button>
     </form>
@@ -30,7 +30,7 @@
             <input type="password" id="signUpPassword" placeholder="Пароль" oninput="showConfirmation()" required>
             <input type="password" id="signUpConfirmation" style="display: none;" placeholder="Подтвердить пароль" required>
             <div id="error-message" style="display: none; color: red;">Пароли не совпадают</div>
-            <div class = "shineButton" onclick="signUp()">Зарегестрироваться</div>
+            <div class = "shineButton" onclick="sendSignUp()">Зарегестрироваться</div>
         </div>
         <button id = "signIn" class = "buttonSmaller" onclick="clearSignUp()">Уже есть аккаунт</button>
     </form>

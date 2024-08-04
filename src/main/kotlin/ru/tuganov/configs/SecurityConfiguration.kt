@@ -29,9 +29,9 @@ class SecurityConfiguration @Autowired constructor(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/html/page-list.html/**", hasAuthority("USER"))
-                authorize("/html/page.html/**", hasAuthority("USER"))
-                authorize("/html/admin.html/**", hasAnyAuthority("ADMIN", "MODER"))
+                authorize("/page-list.html/**", hasAuthority("USER"))
+                authorize("/page.html/**", hasAuthority("USER"))
+                authorize("/admin.html/**", hasAnyAuthority("ADMIN", "MODER"))
                 authorize("/**", permitAll)
             }
             csrf {
@@ -39,12 +39,11 @@ class SecurityConfiguration @Autowired constructor(
             }
 //            oauth2Login { }
             formLogin {
-                loginPage = "/html/enter.html"
+                loginPage = "/enter.html"
                 permitAll()
             }
             logout {
                 logoutUrl = "/logout"
-                logoutSuccessUrl = "/html/main.html"
 //                deleteCookies("session-cookies")
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(customFilter)
