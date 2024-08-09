@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import ru.tuganov.dto.*
 import ru.tuganov.entities.Check
-import ru.tuganov.entities.dto.*
 import ru.tuganov.services.CheckService
 import ru.tuganov.services.PageService
 import ru.tuganov.services.TagService
@@ -23,9 +22,7 @@ class PageController @Autowired constructor(
 
     @PostMapping("/selected-date")
     fun getSelectedDateChecks(@RequestBody findChecksDto: FindChecksDto): ResponseEntity<List<Check>> {
-//        logger.info((findChecksDto.date).toString() + ' ' + findChecksDto.pageId)
         val checks = checkService.findChecks(findChecksDto)
-//        logger.info(checks.size.toString())
         return ResponseEntity(checks, HttpStatus.OK)
     }
 
@@ -36,7 +33,6 @@ class PageController @Autowired constructor(
 
     @GetMapping("/delete-check/{checkId}")
     fun deleteCheck(@PathVariable checkId: Int): ResponseEntity<String> {
-//        logger.info("delete-check");
         checkService.deleteCheck(checkId)
         return ResponseEntity("deleted check", HttpStatus.OK)
     }

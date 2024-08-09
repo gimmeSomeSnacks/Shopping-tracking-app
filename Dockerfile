@@ -4,7 +4,7 @@ COPY --chown=gradle:gradle . /project
 
 WORKDIR /project
 
-RUN gradle build --no-daemon -x test
+RUN gradle build --no-daemon
 
 FROM openjdk:23
 
