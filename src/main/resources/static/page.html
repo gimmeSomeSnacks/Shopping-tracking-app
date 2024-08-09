@@ -2,13 +2,17 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Название страницы</title>
+    <title>Страница</title>
     <link href = "/css/general.css" rel = "stylesheet">
     <link href = "/css/page.css" rel = "stylesheet">
 </head>
 <body>
     <main>
-        <input id = "pageId">
+        <header>
+            <button class = "button" id = "return-button"><a href = "/page-list.html">&#11148;</a></button>
+            <div id = "pageId"><input></div>
+            <button class = "button exit-button"><a href = "/logout">&#9032;</a></button>
+        </header>
         <div id = "statistics">
             <div class="calendar-container">
                 <div class="calendar-header">
@@ -29,25 +33,28 @@
                     <div id="calendarDates" class="calendar-dates"></div>
                 </div>
             </div>
-            <div id = "diagram"></div>
             <div id = "tags">
                 <div class="tag-container" id="addTag">
                     <button class = "medium-button">Добавить категорию</button>
                 </div>
             </div>
+            <div id = "diagram">
+                <canvas id="expenseChart"></canvas>
+            </div>
         </div>
         <div id = "expenses">
             <div id = "expenses-sum">
-                <label>Общая сумма трат</label>
+                <p>Общая сумма трат</p>
                 <label>Ожидаемая сумма трат</label>
-                <input placeholder = "Общая сумма трат">
+                <p id = "summary"></p>
                 <input placeholder = "Ожидаемая сумма трат" id = "expectedExpenses">
             </div>
-            <ul id = "checks">
-                <li id = "add-article"><button class = "medium-button">Добавить покупку</button></li>
-            </ul>
+            <div id = "checks">
+                <div id = "add-article"><button class = "medium-button">Добавить покупку</button></div>
+            </div>
         </div>
     </main>
     <script src="/js/page.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import ru.tuganov.entities.Page
-import ru.tuganov.entities.dto.PageDto
+import ru.tuganov.dto.PageDto
 import ru.tuganov.services.PageService
 @RestController
 @RequestMapping("/pages")

@@ -9,7 +9,7 @@ data class Tag (
     @JsonIgnore
     val page: Page,
     var name: String,
-    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY,)
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
     @JsonIgnore
     var checkList: MutableList<Check>,
     @Id

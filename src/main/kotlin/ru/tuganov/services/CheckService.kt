@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.tuganov.controllers.PageController
 import ru.tuganov.entities.Check
-import ru.tuganov.entities.dto.AddCheckDto
-import ru.tuganov.entities.dto.UpdateCheckDto
-import ru.tuganov.entities.dto.FindChecksDto
+import ru.tuganov.dto.AddCheckDto
+import ru.tuganov.dto.UpdateCheckDto
+import ru.tuganov.dto.FindChecksDto
 import ru.tuganov.repositories.CheckRepository
 
 @Service
@@ -37,9 +37,9 @@ class CheckService @Autowired constructor(
         val check = checkRepository.findCheckById(updateCheckDto.checkId)
         check.expense = updateCheckDto.expense as Int
         if (updateCheckDto.tagId != null) {
-//            logger.info(updateCheckDto.tagId.toString());
             check.tag = tagService.findTagById(updateCheckDto.tagId)
-//            logger.info("tag = " + check.tag)
+        } else {
+            check.tag = null
         }
         check.description = updateCheckDto.description as String
         checkRepository.save(check)

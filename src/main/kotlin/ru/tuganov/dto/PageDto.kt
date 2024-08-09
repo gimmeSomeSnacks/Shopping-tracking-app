@@ -1,4 +1,4 @@
-package ru.tuganov.entities.dto
+package ru.tuganov.dto
 
 class PageDto (
     val id : Int,

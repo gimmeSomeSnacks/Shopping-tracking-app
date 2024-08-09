@@ -2,7 +2,7 @@ package ru.tuganov.services
 
 import org.springframework.stereotype.Service
 import ru.tuganov.entities.Tag
-import ru.tuganov.entities.dto.TagDto
+import ru.tuganov.dto.TagDto
 import ru.tuganov.repositories.TagRepository
 
 @Service

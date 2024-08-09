@@ -37,14 +37,13 @@ class SecurityConfiguration @Autowired constructor(
             csrf {
                 disable()
             }
-//            oauth2Login { }
             formLogin {
                 loginPage = "/enter.html"
                 permitAll()
             }
             logout {
                 logoutUrl = "/logout"
-//                deleteCookies("session-cookies")
+                deleteCookies("accessToken", "refreshToken")
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(customFilter)
             httpBasic { }

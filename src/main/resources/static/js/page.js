@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 tag.date = selectedDate.toISOString().split('T')[0];
 
                 let checks = document.getElementById('checks');
-                checks.innerHTML = '<li id="add-article"><button class = "medium-button">Добавить покупку</button></li>';
+                checks.innerHTML = '<div id="add-article"><button class = "medium-button">Добавить покупку</button></div>';
                 document.getElementById('add-article').addEventListener('click', handleAddCheck);
 
                 let tags = document.getElementById('tags');
@@ -76,30 +76,35 @@ document.addEventListener('DOMContentLoaded', async function() {
         let jsonData = atob(location.hash.substring(1));
         tag = JSON.parse(jsonData);
         if (!tag) {
-            alert(response.status);
+            alert('Error');
         }
         let pageResponse = await  fetch(`/pages/${tag.pageId}`, {
             method: 'GET',
             credentials: 'include'
         });
         if (!pageResponse.ok) {
-            alert(response.status);
+            alert(pageResponse.status);
         }
         pageJson = await pageResponse.json();
         if (pageJson) {
-            let page = document.getElementById('pageId');
+            let page = document.querySelector('#pageId input');
+            page.id = tag.pageId;
             page.value = pageJson.pageName;
             let expectedExpenses = document.getElementById('expectedExpenses');
             expectedExpenses.value = pageJson.expectedExpenses;
             expectedExpenses.addEventListener('input', async function() {
                 let value = expectedExpenses.value;
+                let page = {
+                    id: tag.pageId,
+                    expectedExpenses: value
+                }
                 let response = await fetch('/page/expected-expenses', {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: value
+                    body: JSON.stringify(page)
                 });
                 if (!response.ok) {
                     alert(response.status);
@@ -136,7 +141,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 checksContainer.insertBefore(checkElement, document.getElementById('add-article'));
             });
         }
+        const { labels, data } = getDataForChart();
+        createPieChart(labels, data);
     }
+
 
     function createTagElement(tagObject) {
         let tagContainer = document.createElement('div');
@@ -200,12 +208,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         let checkDescription = document.getElementById(`check-description-${checkId}`);
         let checkExpense = document.getElementById(`check-expense-${checkId}`);
         let checkSelectOptions = document.querySelector(`#check-tag-select-${checkId}`);
-        let checkTagSelect = checkSelectOptions.options[checkSelectOptions.selectedIndex];
+        let checkTagSelect = checkSelectOptions?.options[checkSelectOptions?.selectedIndex];
+        let tagId = checkTagSelect ? checkTagSelect.id.substring('option-tag-'.length): null;
         let check = {
             checkId: checkId,
             description: checkDescription.value,
             expense: checkExpense.value,
-            tagId: checkTagSelect.id.substring('option-tag-'.length)
+            tagId: tagId
         }
         let response = await fetch('/page/update-check', {
             method: 'POST',
@@ -221,19 +230,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function finalizeCheckCreation(check) {
-        let checkItem = document.createElement('li');
+        let checkItem = document.createElement('div');
         checkItem.className = "singleCheck";
 
         checkItem.id = `check-${check.id}`;
 
         let checkDescriptionInput = document.createElement('input');
         checkDescriptionInput.type = 'text';
-        checkDescriptionInput.value = check.description ?? '';
+        checkDescriptionInput.value = check.description ?? ' ';
         checkDescriptionInput.id = `check-description-${check.id}`
 
         let checkExpenseInput = document.createElement('input');
         checkExpenseInput.type = 'text';
-        checkExpenseInput.value = check.expense ?? '';
+        checkExpenseInput.value = check.expense ?? '0';
         checkExpenseInput.id = `check-expense-${check.id}`
 
         let checkTagSelect = document.createElement('select');
@@ -251,8 +260,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 checkTagSelect.appendChild(option);
             }
         });
-        if (check.tag != null)
-            checkTagSelect.value = check.tag.name;
+
+        let option = document.createElement('option');
+        option.textContent = 'Категория не выбрана';
+        checkTagSelect.appendChild(option);
+        checkTagSelect.value = check?.tag?.name ? check.tag.name : option.textContent;
         checkItem.appendChild(checkDescriptionInput);
         checkItem.appendChild(checkExpenseInput);
         checkItem.appendChild(checkTagSelect);
@@ -262,9 +274,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
         checkTagSelect.addEventListener('change', async function() {
             await sendEditCheck(check.id);
+            const { labels, data } = getDataForChart();
+            createPieChart(labels, data);
         });
         checkExpenseInput.addEventListener('input', async function() {
             await sendEditCheck(check.id);
+            const { labels, data } = getDataForChart();
+            createPieChart(labels, data);
         });
 
         let deleteButton = document.createElement('button');
@@ -278,6 +294,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 method: 'GET',
                 credentials: 'include'
             });
+            const { labels, data } = getDataForChart();
+            createPieChart(labels, data);
         });
 
         checkItem.appendChild(deleteButton);
@@ -311,14 +329,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     async function handleAddCheck() {
         let addArticleElement = document.getElementById('add-article');
-        // let tagsContainer = document.getElementById('tags');
-        // let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container'))
-        //     .map(tagContainer => {
-        //         let input = tagContainer.querySelector('input');
-        //         if (input) {
-        //             return { id: input.id, name: input.value };
-        //         }
-        //     });
         let newCheck = {
             pageId: pageJson.id,
             date: selectedDate,
@@ -340,35 +350,143 @@ document.addEventListener('DOMContentLoaded', async function() {
         let checksContainer = document.getElementById('checks');
         await checksContainer.insertBefore(await newCheckElement, addArticleElement);
 
-
+        const { labels, data } = getDataForChart();
+        createPieChart(labels, data);
     }
     document.getElementById('add-article').addEventListener('click', handleAddCheck);
 
     function updateCheckTagOptions() {
         let tagsContainer = document.getElementById('tags');
         let tagOptions = Array.from(tagsContainer.querySelectorAll('.tag-container input'))
-            .filter(input => input.value.trim() !== '')
             .map(input => ({ id: input.id, name: input.value }));
 
 
-        let checkElements = document.querySelectorAll('#checks li');
+        let checkElements = document.querySelectorAll('.singleCheck');
         checkElements.forEach(checkElement => {
             let select = checkElement.querySelector('select');
             if (select) {
-                let currentValue = select.value;
+                let checkTagSelect = select.options[select.selectedIndex];
+                let tagId = checkTagSelect ? checkTagSelect.id.substring('option-tag-'.length): null;
+                let tagValue;
                 select.innerHTML = '';
-
                 tagOptions.forEach(tag => {
                     let option = document.createElement('option');
-                    option.id = tag.id;
+                    option.id = 'option-tag-' + tag.id;
                     option.textContent = tag.name;
+                    if (option.id.substring('option-tag-'.length) == tagId) {
+                        tagValue = tag.name;
+                    }
                     select.appendChild(option);
                 });
-
-                select.value = currentValue;
+                let option = document.createElement('option');
+                option.textContent = 'Категория не выбрана';
+                select.appendChild(option);
+                if (tagValue == null) {
+                    select.value = option.textContent;
+                    sendEditCheck(checkElement.id.substring('check-'.length));
+                } else {
+                    select.value = tagValue;
+                }
             }
         });
+        const { labels, data } = getDataForChart();
+        createPieChart(labels, data);
     }
     renderCalendar();
     await populatePage();
+
+    document.getElementById(tag.pageId).addEventListener('input', async function() {
+        let inputValue = event.target.value.trim();
+        let page = {
+            id: tag.pageId,
+            pageName: inputValue
+        };
+
+        let response = await fetch(`/pages/edit`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(page)
+        });
+        if (!response.ok) {
+            alert(response.status);
+        }
+    });
 });
+
+function generateColors(count) {
+    const colors = [];
+    const saturation = 70;
+    const lightness = 70;
+
+    for (let i = 0; i < count; i++) {
+        const hue = i * (360 / count);
+        colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    }
+
+    return colors;
+}
+
+function getDataForChart() {
+    const checks = document.querySelectorAll('.singleCheck');
+    const groupedData = {};
+
+    checks.forEach(check => {
+        const expense = parseFloat(check.querySelector('input[id^="check-expense"]').value);
+        const selectedOption = check.querySelector('select').value;
+
+        if (!isNaN(expense) && selectedOption) {
+            if (!groupedData[selectedOption]) {
+                groupedData[selectedOption] = 0;
+            }
+            groupedData[selectedOption] += expense;
+        }
+    });
+
+    const labels = Object.keys(groupedData);
+    const data = Object.values(groupedData);
+
+    return { labels, data };
+}
+
+function createPieChart(labels, data) {
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const colors = generateColors(data.length);
+
+    if (expenseChart instanceof Chart) {
+        expenseChart.destroy();
+    }
+
+    expenseChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('70%', '30%')), // Используем темные оттенки тех же цветов
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#808080'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}

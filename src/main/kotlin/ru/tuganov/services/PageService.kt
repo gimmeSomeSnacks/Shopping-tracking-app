@@ -3,7 +3,8 @@ package ru.tuganov.services
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.tuganov.entities.Page
-import ru.tuganov.entities.dto.PageDto
+import ru.tuganov.dto.ExpectedExpensesDto
+import ru.tuganov.dto.PageDto
 import ru.tuganov.repositories.PageRepository
 
 @Service
@@ -52,5 +53,11 @@ class PageService @Autowired constructor(
 
     fun deletePage(pageId: Int) {
         pageRepository.deleteById(pageId)
+    }
+
+    fun editExpenses(expectedExpensesDto: ExpectedExpensesDto) {
+        val page = pageRepository.findPageById(expectedExpensesDto.id)
+        page.expectedExpenses = expectedExpensesDto.expectedExpenses
+        pageRepository.save(page)
     }
 }

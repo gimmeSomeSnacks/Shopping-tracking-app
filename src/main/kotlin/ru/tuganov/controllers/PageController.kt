@@ -5,19 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import ru.tuganov.dto.*
 import ru.tuganov.entities.Check
-import ru.tuganov.entities.dto.AddCheckDto
-import ru.tuganov.entities.dto.UpdateCheckDto
-import ru.tuganov.entities.dto.FindChecksDto
-import ru.tuganov.entities.dto.TagDto
+import ru.tuganov.entities.dto.*
 import ru.tuganov.services.CheckService
+import ru.tuganov.services.PageService
 import ru.tuganov.services.TagService
 
 @RestController
 @RequestMapping("/page")
 class PageController @Autowired constructor(
     private val checkService: CheckService,
-    private val tagService: TagService
+    private val tagService: TagService,
+    private val pageService: PageService
 ) {
     private val logger = LoggerFactory.getLogger(PageController::class.java)
 
@@ -43,7 +43,7 @@ class PageController @Autowired constructor(
 
     @PostMapping("/update-check")
     fun editCheck(@RequestBody updateCheckDto: UpdateCheckDto): ResponseEntity<String> {
-//        logger.info("tagId = " + updateCheckDto.tagId.toString())
+        logger.info("check update");
         checkService.updateCheck(updateCheckDto)
         return ResponseEntity("updated check", HttpStatus.OK)
     }
@@ -55,6 +55,7 @@ class PageController @Autowired constructor(
 
     @GetMapping("/delete-tag/{tagId}")
     fun deleteTag(@PathVariable tagId: Int): ResponseEntity<String> {
+        logger.info("delete tag");
         tagService.deleteTag(tagId)
         return ResponseEntity("deleted tag", HttpStatus.OK)
     }
@@ -63,5 +64,11 @@ class PageController @Autowired constructor(
     fun editTag(@RequestBody tagDto: TagDto): ResponseEntity<String> {
         tagService.editTag(tagDto)
         return ResponseEntity("edited tag", HttpStatus.OK)
+    }
+
+    @PostMapping("/expected-expenses")
+    fun editExpenses(@RequestBody expectedExpensesDto: ExpectedExpensesDto): ResponseEntity<String> {
+        pageService.editExpenses(expectedExpensesDto);
+        return ResponseEntity("edited expenses", HttpStatus.OK)
     }
 }

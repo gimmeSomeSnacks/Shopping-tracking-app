@@ -9,8 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.tuganov.entities.User
-import ru.tuganov.entities.dto.SignInDto
-import ru.tuganov.entities.dto.SignUpDto
+import ru.tuganov.dto.SignInDto
+import ru.tuganov.dto.SignUpDto
 import ru.tuganov.security.CookieProvider
 import ru.tuganov.security.JwtProvider
 import ru.tuganov.security.Role

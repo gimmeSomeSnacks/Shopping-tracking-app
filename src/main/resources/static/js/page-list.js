@@ -10,7 +10,9 @@ window.addEventListener('DOMContentLoaded', async function getAllPages() {
     let pages = await response.json();
 
     pages.forEach(page => {
-        let listItem = document.createElement('li');
+        let listItem = document.createElement('div');
+        listItem.className = 'listItem';
+        listItem.id = page.id;
         let input = document.createElement('input');
         input.id = page.id;
         input.type = 'text';
@@ -21,7 +23,8 @@ window.addEventListener('DOMContentLoaded', async function getAllPages() {
 
 document.getElementById('addPageButton').addEventListener('click', async function addNewPageInput() {
     let listContainer = document.getElementById('pageList');
-    let listItem = document.createElement('li');
+    let listItem = document.createElement('div');
+    listItem.className = 'listItem';
     let input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Введите название страницы...';
@@ -40,7 +43,8 @@ document.getElementById('addPageButton').addEventListener('click', async functio
     }
 
     let pageId = await response.json();
-    input.setAttribute('id', pageId);
+    input.id = pageId;
+    listItem.id = pageId;
 
     listItem.appendChild(input);
     listContainer.appendChild(listItem);
@@ -76,9 +80,9 @@ async function finalizePageCreation(input, listItem) {
         let listContainer = document.getElementById('pageList');
 
         let link = document.createElement('a');
-        link.setAttribute('id', input.id);
         link.setAttribute('onclick', `getPage(event)`);
         link.href = '#';
+        link.id = listItem.id;
         link.textContent = pageName;
 
         listItem.innerHTML = '';
@@ -117,13 +121,13 @@ async function enableEditing(listItem, oldInput) {
     input.type = 'text';
     input.value = oldInput.value.trim();
     listItem.replaceChild(input, link);
-    input.setAttribute('id', oldInput.id)
+    input.id = oldInput.id;
     input.focus();
 
     input.addEventListener('input', async function() {
         let newPageName = input.value.trim();
         let page = {
-            id: link.id,
+            id: oldInput.id,
             pageName: newPageName
         };
 
@@ -152,10 +156,13 @@ async function enableEditing(listItem, oldInput) {
 
 async function deletePage(listItem) {
     if (listItem.id != '') {
-        await fetch(`/pages/delete/${listItem.id}`, {
+        let response = await fetch(`/pages/delete/${listItem.id}`, {
             method: 'GET',
             credentials: 'include'
         });
+        if (!response.ok) {
+            alert(response.status);
+        }
     }
     listItem.remove();
 }
@@ -171,7 +178,6 @@ async function getPage(event) {
     };
 
     // sessionStorage.setItem('pageData', JSON.stringify(pageData));
-
     let tag = btoa(JSON.stringify(findCheckDto));
     window.location.href = `/page.html#${tag}`;
 }

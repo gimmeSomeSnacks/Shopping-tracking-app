@@ -9,13 +9,7 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
 #pageList {
-    list-style-type: none;
     padding: 30px 30px 15px;
     margin-bottom: 0;
     display: flex;
@@ -23,7 +17,7 @@ a {
     align-items: center;
 }
 
-li {
+.listItem {
     display: grid;
     height: 50px;
     grid-template-columns: 500px 60px 60px;
@@ -32,6 +26,7 @@ li {
     font-size: 25px;
     margin-bottom: 10px;
     border-bottom: rgb(128, 128, 128);
+    color: rgb(128, 128, 128);
 }
 
 button {
@@ -76,4 +71,14 @@ button {
     margin-top: 10px;
     width: 100%;
     border-bottom: 3px solid rgb(128, 128, 128);
+}
+
+input {
+    text-align: center;
+    background: #FFF1E5;
+    border: rgb(128, 128, 128);
+    border-radius: 20px;
+    color: rgb(128, 128, 128);
+    font-size: 25px;
+    padding: 5px;
 }

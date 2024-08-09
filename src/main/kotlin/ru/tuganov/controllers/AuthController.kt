@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import ru.tuganov.entities.dto.SignInDto
-import ru.tuganov.entities.dto.SignUpDto
+import ru.tuganov.dto.SignInDto
+import ru.tuganov.dto.SignUpDto
 import ru.tuganov.services.AuthService
 
 @RestController

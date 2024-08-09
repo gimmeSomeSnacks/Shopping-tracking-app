@@ -1,4 +1,4 @@
-package ru.tuganov.entities.dto
+package ru.tuganov.dto
 
 class SignUpDto(
     val username: String,
